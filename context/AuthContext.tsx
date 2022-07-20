@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { signInWithPopup, FacebookAuthProvider, onAuthStateChanged } from "firebase/auth";
+import { signInWithPopup, signOut, FacebookAuthProvider, onAuthStateChanged } from "firebase/auth";
 import { setDoc, getDoc, doc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import IUser from '../interface/user';
@@ -11,6 +11,7 @@ export interface IAuthContextProps {
 
 interface IContext {
     signinFacebook: () => void
+    signout: () => void
     currentUser: IUser
 }
 
@@ -60,10 +61,22 @@ export default function AuthContext ({ children }: IAuthContextProps) {
             })
     }
 
+    function signout(): void {
+        signOut(auth)
+        .then(() => {
+            console.log("sign out success!")
+        })
+        .catch((error) => {
+            const errorMessage = error.message;
+            console.log(errorMessage);
+        })
+    }
+
     return (
         <authContext.Provider
             value={{ 
                 signinFacebook, 
+                signout,
                 currentUser 
             }}
         >
