@@ -12,13 +12,13 @@ export interface IAuthContextProps {
 interface IContext {
     signinFacebook: () => void
     signout: () => void
-    currentUser: IUser
+    currentUser: IUser | null
 }
 
 const authContext = React.createContext({} as IContext);
 
 export default function AuthContext ({ children }: IAuthContextProps) {
-    const [currentUser, setCurrentUser] = useState<IUser>({} as IUser);
+    const [currentUser, setCurrentUser] = useState<IUser | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -35,7 +35,7 @@ export default function AuthContext ({ children }: IAuthContextProps) {
                 });
             }
             else {
-                setCurrentUser({} as IUser)
+                setCurrentUser(null)
             }
         })
     }, [])
