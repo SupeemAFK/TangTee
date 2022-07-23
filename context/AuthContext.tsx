@@ -27,11 +27,12 @@ export default function AuthContext ({ children }: IAuthContextProps) {
                 const docSnap = await getDoc(doc(db, "users", result.uid));
                 const user = docSnap.data();
                 setCurrentUser({
-                    name: user?.name ? user.name : "",
-                    avatar: user?.avatar ? user.avatar : "",
-                    bio: "Write something here",
-                    stars: 5,
-                    status: "Chilling",
+                    id: docSnap.id,
+                    name: user?.name,
+                    avatar: user?.avatar,
+                    bio: user?.avatar,
+                    stars: user?.stars,
+                    status: user?.status,
                 });
             }
             else {

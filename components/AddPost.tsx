@@ -5,7 +5,10 @@ import { BiImageAdd } from 'react-icons/bi';
 import { BsEmojiSmile } from 'react-icons/bs'
 import dynamic from 'next/dynamic';
 const Picker = dynamic(() => import('emoji-picker-react'), { ssr: false });
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/AuthContext';
+import { db } from '../lib/firebase';
+import { collection, addDoc } from "firebase/firestore"; 
+import { getStorage, ref, uploadBytes, getDownloadURL  } from "firebase/storage";
 
 export interface IAddPostProps {
 }
@@ -17,7 +20,7 @@ interface IPostForm {
 
 export default function AddPost (props: IAddPostProps) {
   const { currentUser } = useAuth();
-  const [postForm, setPostForm] = useState<IPostForm>({ text: "", img: { url: "", file: null } });
+  const [postForm, setPostForm] = useState<IPostForm>({ text: "", img: { url: "", file: {} as File } });
   const [openEmojiPicker, setOpenEmojiPicker] = useState<Boolean>(false);
 
   function handleOnChange(e: React.ChangeEvent<HTMLInputElement>): void {
@@ -33,12 +36,33 @@ export default function AddPost (props: IAddPostProps) {
     }
   }
 
-  function AddPost() {
-
+  async function AddPost(): Promise<void> {
+    if (postForm.text !== '' || postForm.img.url !== '') {
+      let imgUrl: string = "";
+      const storage = getStorage();
+      const storageRef = ref(storage, postForm.img.file.name);
+  
+      if (postForm.img.url !== "") {
+        const snapshot = await uploadBytes(storageRef, postForm.img.file)
+        imgUrl = await getDownloadURL(snapshot.ref) 
+      }
+  
+      await addDoc(collection(db, "posts"), {
+        text: postForm.text,
+        img: imgUrl,
+        max_participants: 0,
+        tags: [],
+        status: true,
+        user_id: currentUser?.id,
+        requests: [],
+        accepts: []
+      });
+      setPostForm({ text: "", img: { url: "", file: {} as File } })
+    }
   }
 
   return (
-    <div className="p-3 rounded-md border-2 border-[#e6e6e6] w-72 md:w-96 lg:w-96">
+    <div className="p-3 rounded-md border-[1px] border-[#e6e6e6] w-72 md:w-96 lg:w-96">
       {currentUser ? (
         <>
           <input placeholder='Going out with friends...' onChange={handleOnChange} value={postForm.text} type="text" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
@@ -48,7 +72,7 @@ export default function AddPost (props: IAddPostProps) {
               <BiImageAdd />
               <input onChange={handleOnChange} type="file" className="hidden" />
             </label>
-            <button className="bg-teal-400 py-1 px-5 text-white rounded-xl">Add Post</button>
+            <button onClick={() => AddPost()} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Add Post</button>
           </div>
           {openEmojiPicker && (
             <div className="flex justify-center">

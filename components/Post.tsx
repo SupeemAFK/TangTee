@@ -11,21 +11,23 @@ export default function Post ({ post }: IPostProps) {
       <div className="p-3 flex items-center justify-between font-medium">
         <div className="flex item-center">
           <div className="w-10 h-10 rounded-full overflow-hidden">
-            <img className="object-cover w-full" src="https://pbs.twimg.com/media/E9dBy5qVcAco5-f.jpg" alt="" />
+            <img className="object-cover w-full" src={post.user.avatar} alt={post.user.name} />
           </div>
-          <p className="ml-2 flex items-center">Mina-Chan</p> 
+          <p className="ml-2 flex items-center">{post.user.name.slice(0, 5)}...</p> 
         </div>
         <div>
-          <p>Status : <span className="text-green-500">Open</span></p>
+          <p>Status : <span className={`${post.status ? "text-green-500" : "text-red-500"}`}>{post.status ? "Open" : "Closed"}</span></p>
         </div>
       </div>
 
-      <div className='w-full rounded-t-md overflow-hidden'>
-        <img className='object-cover w-full' src="https://www.ryoiireview.com/upload/article/202011/1604489333_9174c8d8872b1b3f956c16eaa75d07b9.jpg" alt="" />
-      </div>
+      {post?.img !== '' && (
+        <div className='w-full overflow-hidden'>
+          <img className='object-cover w-full' src={post.img} alt={post.text} />
+        </div>
+      )}
 
       <div className='flex justify-center my-5 text-xl p-3'>
-        <p className='text-center'>หิวครับ ตั้งตี้แดกหมูกระทะ</p>
+        <p className='text-center'>{post.text}</p>
       </div>
 
       <div className='flex justify-end p-3'>

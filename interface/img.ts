@@ -1,4 +1,4 @@
 export default interface IImage {
-    file: File | null
+    file: File
     url: string
 }
