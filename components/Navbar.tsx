@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useAuth } from '../context/AuthContext';
 import Link from 'next/link'
+import { BsBellFill } from 'react-icons/bs'
 
 export interface INavbarProps {
 }
@@ -9,7 +10,7 @@ export default function Navbar (props: INavbarProps) {
     const { currentUser, signout } = useAuth();
 
   return (
-    <div className="py-2 px-5 h-16 bg-teal-400 flex items-center text-white fixed top-0 w-full z-10">
+    <div className="py-2 px-5 h-16 bg-teal-400 flex items-center text-white fixed top-0 w-full z-20">
         <div className="flex items-center flex-1">
             {currentUser ? (
                 <>
@@ -27,7 +28,10 @@ export default function Navbar (props: INavbarProps) {
         </div>
         <div className='flex justify-end flex-1'>
             {currentUser ? (
-                <button onClick={() => signout()} className="p-2 border-2 border-white text-white rounded-md">Sign out</button>
+                <div className="flex items-center"> 
+                    <button className="mr-5 text-xl"><BsBellFill /></button>
+                    <button onClick={() => signout()} className="p-2 border-2 border-white text-white rounded-md">Sign out</button>
+                </div>
             ) : (
                 <Link href="/auth">
                     <button className="p-2 border-2 border-white text-white rounded-md">Sign in</button>

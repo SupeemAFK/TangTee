@@ -12,7 +12,7 @@ import IPost from '../interface/post'
 import IUser from '../interface/user';
 
 //services
-import { collection, onSnapshot, getDoc, doc, DocumentData } from 'firebase/firestore';
+import { collection, onSnapshot, getDoc, doc, DocumentData, DocumentSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase'
 
 const Home: NextPage = () => {
@@ -20,13 +20,14 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     onSnapshot(collection(db, "posts"), async (snapshot) => {
-      const dbPosts = await Promise.all(snapshot.docs.map(async doc => {
+      const dbPosts: IPost[] = await Promise.all(snapshot.docs.map(async doc => {
         const data: DocumentData = doc.data()
         const id: string = doc.id
         const user: IUser = await getUser(data.user_id);
         return {
           id,
-          text: data.text,
+          title: data.title,
+          details: data.details,
           img: data.img,
           max_participants: data.max_participants,
           tags: data.tags,
@@ -42,8 +43,8 @@ const Home: NextPage = () => {
   }, []) 
 
   async function getUser(id: string): Promise<IUser> {
-    const docSnap = await getDoc(doc(db, "users", id));
-    const user = docSnap.data()
+    const docSnap: DocumentSnapshot = await getDoc(doc(db, "users", id));
+    const user: DocumentData | undefined = docSnap.data()
     return {
       id: docSnap.id,
       name: user?.name,

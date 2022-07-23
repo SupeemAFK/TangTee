@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { signInWithPopup, signOut, FacebookAuthProvider, onAuthStateChanged } from "firebase/auth";
-import { setDoc, getDoc, doc } from 'firebase/firestore';
+import { setDoc, getDoc, doc, DocumentData, DocumentSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import IUser from '../interface/user';
 
@@ -24,8 +24,8 @@ export default function AuthContext ({ children }: IAuthContextProps) {
     useEffect(() => {
         onAuthStateChanged(auth, async (result) => {
             if (result) {
-                const docSnap = await getDoc(doc(db, "users", result.uid));
-                const user = docSnap.data();
+                const docSnap: DocumentSnapshot = await getDoc(doc(db, "users", result.uid));
+                const user: DocumentData | undefined = docSnap.data();
                 setCurrentUser({
                     id: docSnap.id,
                     name: user?.name,
