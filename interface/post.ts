@@ -11,4 +11,5 @@ export default interface IPost {
     user?: IUser
     requests: string[]
     accepts: string[]
+    createdAt: Date
 }

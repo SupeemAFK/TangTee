@@ -35,11 +35,13 @@ const Home: NextPage = () => {
           status: data.status,
           user,
           requests: data.requests,
-          accepts: data.accepts
+          accepts: data.accepts,
+          createdAt: new Date(data.createdAt * 1000)
         }
       }))
       
-      setPosts(dbPosts.reverse())
+      const dbPostSortDate: IPost[] = dbPosts.sort((a,b)=> (b.createdAt.getTime() - a.createdAt.getTime()))
+      setPosts(dbPostSortDate)
     })
   }, []) 
 
@@ -55,7 +57,7 @@ const Home: NextPage = () => {
       status: user?.status,
     }
   }
-
+console.log(posts)
   return (
     <>
       <Head>

@@ -39,7 +39,7 @@ export default function AddPost (props: IAddPostProps) {
   }
 
   async function AddPost(): Promise<void> {
-    if (postForm.title !== '' || postForm.img.url !== '') {
+    if (postForm.title !== '' && postForm.details !== '' && postForm.tags) {
       let imgUrl: string = "";
       const storage: FirebaseStorage = getStorage();
       const storageRef: StorageReference = ref(storage, postForm.img.file.name);
@@ -54,11 +54,12 @@ export default function AddPost (props: IAddPostProps) {
         details: postForm.details,
         img: imgUrl,
         max_participants: 0,
-        tags: [],
+        tags: postForm.tags !== "" ? postForm.tags.split(' ') : [],
         status: true,
         user_id: currentUser?.id,
         requests: [],
-        accepts: []
+        accepts: [],
+        createdAt: Date.now() 
       });
       setPostForm({ title: "", img: { url: "", file: {} as File }, tags: "", details: "" })
     }
@@ -71,12 +72,12 @@ export default function AddPost (props: IAddPostProps) {
           <input placeholder='Your title to Tang Tee' onFocus={() => setFocusInputName("title")} onChange={handleOnChange} value={postForm.title} type="text" name="title" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
           <div className="p-[0.02rem] bg-teal-400 my-2 rounded-lg"></div>
           <textarea  placeholder='Write some details about your activities' onFocus={() => setFocusInputName("details")}  onChange={handleOnChange} value={postForm.details} name="details" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
-          <input placeholder='Your title to Tang Tee' onFocus={() => setFocusInputName("tags")}  onChange={handleOnChange} value={postForm.tags} type="text" name="tags" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+          <input placeholder='Add your tags' onFocus={() => setFocusInputName("tags")}  onChange={handleOnChange} value={postForm.tags} type="text" name="tags" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
           
           {postForm.tags !== "" && (
             <div className="mt-2 w-full flex overflow-auto">
-              {postForm.tags.split(' ').map(tag => (
-                <div className="bg-slate-400 mr-1 rounded-xl p-1 flex items-center justify-center text-white">
+              {postForm.tags.split(' ').map(tag => tag !== '' && (
+                <div key={tag} className="bg-slate-400 mr-1 rounded-xl p-1 flex items-center justify-center text-white">
                   <p>{tag}</p>
                 </div>
               ))}

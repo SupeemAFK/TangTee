@@ -19,10 +19,7 @@ export default function Post ({ post }: IPostProps) {
     <motion.div 
       variants={{
         hidden: { y: 20, opacity: 0 },
-        visible: {
-          y: 0,
-          opacity: 1,
-        },
+        visible: { y: 0, opacity: 1 },
       }}
       className="rounded-md border-[1px] border-[#e6e6e6] w-72 md:w-96 lg:w-96 mt-5"
     >
@@ -37,11 +34,15 @@ export default function Post ({ post }: IPostProps) {
           <button onClick={() => setOpenMenu(true)}><BsThreeDots /></button>
           {openMenu && (
             <>
-              <div className="border-[1px] border-[#e6e6e6] bg-white rounded-md p-2 absolute right-0 z-10">
+              <motion.div 
+                initial={{ y: -20, opacity: 0, }}
+                animate={{ y: 0, opacity: 1 }}
+                className="border-[1px] border-[#e6e6e6] bg-white rounded-md p-2 absolute right-0 z-10"
+              >
                 <button className="text-teal-400 flex items-center font-normal">Edit <AiOutlineEdit className="ml-1" /></button>
                 <div className="p-[0.02rem] bg-[#e6e6e6] my-1"></div>
                 <button onClick={async () => await deleteDoc(doc(db, "posts", post.id))}className="text-red-400 flex items-center font-normal">Delete <MdOutlineDelete className="ml-1" /></button>
-              </div> 
+              </motion.div> 
               <div onClick={() => setOpenMenu(false)} className="w-full h-screen mt-16 fixed top-0 left-0"></div> 
             </>
           )}
@@ -54,8 +55,17 @@ export default function Post ({ post }: IPostProps) {
         </div>
       )}
 
-      <div className='flex justify-center my-5 text-xl p-3'>
+      <div className='flex justify-center my-5 text-xl p-3 flex-col items-center'>
         <p className='text-center'>{post.title}</p>
+        {post.tags.length > 0 && (
+          <div className='w-full flex justify-center mt-1'>
+            {post.tags.map(tag => (
+              <div key={tag} className="bg-slate-400 mr-1 rounded-xl p-1 flex items-center justify-center text-white text-sm">
+                <p>{tag}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
         <div className='flex justify-between items-center p-3 text-xs lg:text-base'>
