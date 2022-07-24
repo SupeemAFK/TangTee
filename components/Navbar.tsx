@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useAuth } from '../context/AuthContext';
 import Link from 'next/link'
 import { BsBellFill } from 'react-icons/bs'
+import { HiDocumentAdd } from 'react-icons/hi'
 
 export interface INavbarProps {
 }
@@ -29,7 +30,10 @@ export default function Navbar (props: INavbarProps) {
         <div className='flex justify-end flex-1'>
             {currentUser ? (
                 <div className="flex items-center"> 
-                    <button className="mr-5 text-xl"><BsBellFill /></button>
+                    <Link href="/">
+                        <button className="mr-5 text-2xl"><HiDocumentAdd /></button>
+                    </Link>
+                    <button className="mr-5 text-2xl"><BsBellFill /></button>
                     <button onClick={() => signout()} className="p-2 border-2 border-white text-white rounded-md">Sign out</button>
                 </div>
             ) : (

@@ -6,7 +6,7 @@ interface PageProps {
 
 function Page({  }: PageProps) {
   return (
-    <Html>
+    <Html className="scroll-smooth">
      <Head>
         <link rel="shortcut icon" href="/icon-black.png" />
     </Head>

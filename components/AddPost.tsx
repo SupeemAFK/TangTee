@@ -14,14 +14,17 @@ export interface IAddPostProps {
 }
 
 interface IPostForm {
+  [key: string]: string | IImage
   title: string
   details: string
+  tags: string
   img: IImage
 }
 
 export default function AddPost (props: IAddPostProps) {
   const { currentUser } = useAuth();
-  const [postForm, setPostForm] = useState<IPostForm>({ title: "", img: { url: "", file: {} as File }, details: "" });
+  const [focusInputName, setFocusInputName] = useState<string>("title");
+  const [postForm, setPostForm] = useState<IPostForm>({ title: "", img: { url: "", file: {} as File }, tags: "", details: "" });
   const [openEmojiPicker, setOpenEmojiPicker] = useState<Boolean>(false);
 
   function handleOnChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
@@ -57,7 +60,7 @@ export default function AddPost (props: IAddPostProps) {
         requests: [],
         accepts: []
       });
-      setPostForm({ title: "", img: { url: "", file: {} as File }, details: "" })
+      setPostForm({ title: "", img: { url: "", file: {} as File }, tags: "", details: "" })
     }
   }
 
@@ -65,20 +68,32 @@ export default function AddPost (props: IAddPostProps) {
     <div className="p-3 rounded-md border-[1px] border-[#e6e6e6] w-72 md:w-96 lg:w-96">
       {currentUser ? (
         <>
-          <input placeholder='Your title to Tang Tee' onChange={handleOnChange} value={postForm.title} type="text" name="title" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+          <input placeholder='Your title to Tang Tee' onFocus={() => setFocusInputName("title")} onChange={handleOnChange} value={postForm.title} type="text" name="title" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
           <div className="p-[0.02rem] bg-teal-400 my-2 rounded-lg"></div>
-          <textarea  placeholder='Write some details about your activities' onChange={handleOnChange} value={postForm.details} name="details" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+          <textarea  placeholder='Write some details about your activities' onFocus={() => setFocusInputName("details")}  onChange={handleOnChange} value={postForm.details} name="details" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+          <input placeholder='Your title to Tang Tee' onFocus={() => setFocusInputName("tags")}  onChange={handleOnChange} value={postForm.tags} type="text" name="tags" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+          
+          {postForm.tags !== "" && (
+            <div className="mt-2 w-full flex overflow-auto">
+              {postForm.tags.split(' ').map(tag => (
+                <div className="bg-slate-400 mr-1 rounded-xl p-1 flex items-center justify-center text-white">
+                  <p>{tag}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="flex items-center justify-end mt-5">
             <button onClick={() => setOpenEmojiPicker(!openEmojiPicker)} className='text-teal-400 text-2xl mr-2 flex justify-center items-center'><BsEmojiSmile /></button>
             <label className='text-teal-400 text-3xl mr-2 flex justify-center items-center cursor-pointer'>
               <BiImageAdd />
               <input onChange={handleChangeFile} type="file" className="hidden" />
             </label>
-            <button onClick={() => AddPost()} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Add Post</button>
+            <button onClick={() => AddPost()} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Post</button>
           </div>
           {openEmojiPicker && (
             <div className="flex justify-center">
-              <Picker onEmojiClick={(e, emoji) => setPostForm({ ...postForm, title: postForm.title + emoji.emoji })} />
+              <Picker onEmojiClick={(e, emoji) => setPostForm({ ...postForm, [focusInputName]: postForm[focusInputName] + emoji.emoji })} />
             </div>
           )}
           {postForm.img.url !== "" && (

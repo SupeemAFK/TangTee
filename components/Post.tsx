@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import IPost from '../interface/post';
 import { BsThreeDots } from 'react-icons/bs';
@@ -15,7 +16,16 @@ export default function Post ({ post }: IPostProps) {
   const [openMenu, setOpenMenu] = useState<Boolean>(false);
 
   return (
-    <div className="rounded-md border-[1px] border-[#e6e6e6] w-72 md:w-96 lg:w-96 mt-5">
+    <motion.div 
+      variants={{
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+          y: 0,
+          opacity: 1,
+        },
+      }}
+      className="rounded-md border-[1px] border-[#e6e6e6] w-72 md:w-96 lg:w-96 mt-5"
+    >
       <div className="p-3 flex items-center justify-between font-medium">
         <div className="flex item-center">
           <div className="w-10 h-10 rounded-full overflow-hidden">
@@ -57,6 +67,6 @@ export default function Post ({ post }: IPostProps) {
             <button className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>
           </div>
         </div>
-    </div>
+    </motion.div>
   );
 }

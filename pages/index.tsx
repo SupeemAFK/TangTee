@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { NextPage } from 'next'
 import Head from 'next/head';
+import { AnimatePresence, motion } from 'framer-motion';
 
 //components
 import Navbar from '../components/Navbar';
@@ -65,9 +66,24 @@ const Home: NextPage = () => {
         <div>
           <AddPost />
         </div>
-        <div>
-          {posts?.map(post => <Post key={post.id} post={post} />)}
-        </div>
+        <motion.div 
+          variants={{
+            hidden: { opacity: 1 },
+            visible: {
+              opacity: 1,
+              scale: 1,
+              transition: {
+                staggerChildren: 0.2,
+              },
+            },
+          }}
+          initial="hidden"
+          animate="visible"
+        >
+          <AnimatePresence>
+            {posts?.map(post => <Post key={post.id} post={post} />)}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </>
   )
