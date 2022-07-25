@@ -7,6 +7,7 @@ import { MdOutlineDelete } from 'react-icons/md'
 import { AiOutlineEdit } from 'react-icons/ai'
 import { db } from '../lib/firebase';
 import { deleteDoc, doc } from "firebase/firestore"; 
+import Tag from './Tag'
 
 export interface IPostProps {
     post: IPost
@@ -60,9 +61,7 @@ export default function Post ({ post }: IPostProps) {
         {post.tags.length > 0 && (
           <div className='w-full flex justify-center mt-1'>
             {post.tags.map(tag => (
-              <div key={tag} className="bg-slate-400 mr-1 rounded-xl p-1 flex items-center justify-center text-white text-sm">
-                <p>{tag}</p>
-              </div>
+              <Tag key={tag} tag={tag} />
             ))}
           </div>
         )}

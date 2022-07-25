@@ -6,11 +6,12 @@ import Link from 'next/link';
 
 export interface IMobileSidebarProps {
     openSidebar: boolean
+    setOpenSidebar: React.Dispatch<React.SetStateAction<boolean>>
     currentUser: IUser | null
     signout: () => void
 }
 
-export default function MobileSidebar ({ openSidebar, currentUser, signout }: IMobileSidebarProps) {
+export default function MobileSidebar ({ openSidebar, setOpenSidebar, currentUser, signout }: IMobileSidebarProps) {
   return (
     <div className={`bg-teal-400 p-2 fixed top-0 ${openSidebar ? "right-0" : "right-[-100%]"} h-screen mt-16 transition-all duration-300`}>
       <div className='flex flex-col items-center'>
@@ -29,7 +30,14 @@ export default function MobileSidebar ({ openSidebar, currentUser, signout }: IM
         </Link>
       </div>
       <div className='flex flex-col items-center mt-3'>
-        <button onClick={() => signout()}>Sign Out</button>
+        <button 
+          onClick={() => {
+            signout()
+            setOpenSidebar(false)
+          }}
+        >
+          Sign Out
+        </button>
       </div>
     </div>
   );

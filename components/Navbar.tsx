@@ -56,7 +56,7 @@ export default function Navbar (props: INavbarProps) {
                 <button onClick={() => setOpenSidebar(!openSidebar)} className='text-2xl'><GiHamburgerMenu /></button>
             </div>
         )}
-        <MobileSidebar openSidebar={openSidebar} signout={signout} currentUser={currentUser} />
+        <MobileSidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} signout={signout} currentUser={currentUser} />
     </div>
   );
 }

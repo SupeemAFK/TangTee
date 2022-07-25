@@ -4,6 +4,7 @@ import IPost from '../../interface/post';
 import { db } from '../../lib/firebase';
 import { getDoc, doc, DocumentData } from "firebase/firestore"; 
 import Navbar from '../../components/Navbar'
+import Tag from '../../components/Tag'
 import { motion } from 'framer-motion';
 
 export interface IPostDetailProps {
@@ -28,8 +29,7 @@ export default function PostDetail (props: IPostDetailProps) {
                     max_participants: data?.max_participants,
                     tags: data?.tags,
                     status: data?.status,
-                    requests: data?.requests,
-                    accepts: data?.accepts,
+                    participants: data?.participants,
                     createdAt: new Date(data?.createdAt * 1000)
                 })
             })
@@ -61,9 +61,7 @@ export default function PostDetail (props: IPostDetailProps) {
                         {post && post.tags.length > 0 && (
                             <div className='w-full flex justify-center mt-1'>
                                 {post.tags.map(tag => (
-                                    <div key={tag} className="bg-slate-400 mr-1 rounded-xl p-1 flex items-center justify-center text-white text-sm">
-                                        <p>{tag}</p>
-                                    </div>
+                                    <Tag key={tag} tag={tag} />
                                 ))}
                             </div>
                         )}

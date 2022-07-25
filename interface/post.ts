@@ -9,7 +9,6 @@ export default interface IPost {
     tags: string[]
     status: boolean
     user?: IUser
-    requests: string[]
-    accepts: string[]
+    participants: string[]
     createdAt: Date
 }

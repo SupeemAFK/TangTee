@@ -34,8 +34,7 @@ const Home: NextPage = () => {
           tags: data.tags,
           status: data.status,
           user,
-          requests: data.requests,
-          accepts: data.accepts,
+          participants: data.participants,
           createdAt: new Date(data.createdAt * 1000)
         }
       }))
@@ -57,7 +56,7 @@ const Home: NextPage = () => {
       status: user?.status,
     }
   }
-console.log(posts)
+
   return (
     <>
       <Head>
