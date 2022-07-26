@@ -7,7 +7,7 @@ export default interface IPost {
     img: string
     max_participants: number
     tags: string[]
-    status: boolean
+    isOpen: boolean
     user?: IUser
     participants: string[]
     createdAt: Date

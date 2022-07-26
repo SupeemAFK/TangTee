@@ -6,12 +6,13 @@ import { getDoc, doc, DocumentData } from "firebase/firestore";
 import Navbar from '../../components/Navbar'
 import Tag from '../../components/Tag'
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 export interface IPostDetailProps {
 }
 
 export default function PostDetail (props: IPostDetailProps) {
-    const [post, setPost] = useState<IPost>();
+    const [post, setPost] = useState<IPost | null>(null);
     const router = useRouter();
     const { id } = router.query
     
@@ -20,21 +21,41 @@ export default function PostDetail (props: IPostDetailProps) {
             getDoc(doc(db, "posts", id as string))
             .then(docSnap => {
                 const data: DocumentData | undefined = docSnap.data();
-                const id: string = docSnap.id;
-                setPost({
-                    id,
-                    title: data?.title,
-                    details: data?.details,
-                    img: data?.img,
-                    max_participants: data?.max_participants,
-                    tags: data?.tags,
-                    status: data?.status,
-                    participants: data?.participants,
-                    createdAt: new Date(data?.createdAt * 1000)
-                })
+                if (data) {
+                    const id: string = docSnap.id;
+                    setPost({
+                        id,
+                        title: data.title,
+                        details: data.details,
+                        img: data.img,
+                        max_participants: data.max_participants,
+                        tags: data.tags,
+                        isOpen: data.isOpen,
+                        participants: data.participants,
+                        createdAt: new Date(data.createdAt * 1000)
+                    })
+                }
             })
         }
     }, [id])
+
+    if (post == null) {
+        return (
+            <>
+                <Navbar />
+                <div className="mt-16 p-5 flex flex-col items-center text-teal-400">
+                    <div className="mt-5 w-fullflex justify-center">
+                        <h1 className="text-3xl font-medium">Post cannot be found</h1>
+                    </div>
+                    <div className="mt-5">
+                        <Link href="/">
+                            <button className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Go back</button>
+                        </Link>
+                    </div>
+                </div>
+            </>
+        )
+    }
 
     return (
         <>
@@ -48,13 +69,13 @@ export default function PostDetail (props: IPostDetailProps) {
                 }}
                 className="mt-16 p-5 flex flex-col items-center"
             >
-                {post?.img && (
+                {post.img && (
                     <div className="w-full md:w-1/2">
-                        <img className="object-cover w-full" src={post?.img} alt={post?.title} />
+                        <img className="object-cover w-full" src={post.img} alt={post.title} />
                     </div>
                 )}
                 <div className="mt-5 w-full md:w-1/2">
-                    <h1 className="text-3xl font-medium">{post?.title}</h1>
+                    <h1 className="text-3xl font-medium">{post.title}</h1>
                 </div>
                 <div className="mt-5 w-full md:w-1/2 flex items-center justify-between">
                     <div>
@@ -69,10 +90,10 @@ export default function PostDetail (props: IPostDetailProps) {
                     <button className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>
                 </div>
                 <div className="w-full md:w-1/2 mt-5">
-                    <p>Status : <span className={`${post?.status ? "text-green-500" : "text-red-500"}`}>{post?.status ? "Open" : "Closed"}</span></p>
+                    <p>Status : <span className={`${post.isOpen ? "text-green-500" : "text-red-500"}`}>{post.isOpen ? "Open" : "Closed"}</span></p>
                 </div>
                 <div className="w-full md:w-1/2 mt-5">
-                    <p>{post?.details}</p>
+                    <p>{post.details}</p>
                 </div>
             </motion.div>
         </>

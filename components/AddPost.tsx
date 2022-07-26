@@ -59,7 +59,7 @@ export default function AddPost (props: IAddPostProps) {
         img: imgUrl,
         max_participants: postForm.max_participants,
         tags: postForm.tags !== "" ? postForm.tags.split(' ') : [],
-        status: true,
+        isOpen: true,
         user_id: currentUser?.id,
         participants: [],
         createdAt: Date.now() 

@@ -7,6 +7,7 @@ import { MdOutlineDelete } from 'react-icons/md'
 import { AiOutlineEdit } from 'react-icons/ai'
 import { db } from '../lib/firebase';
 import { deleteDoc, doc } from "firebase/firestore"; 
+import { useAuth } from '../context/AuthContext'
 import Tag from './Tag'
 
 export interface IPostProps {
@@ -15,6 +16,7 @@ export interface IPostProps {
 
 export default function Post ({ post }: IPostProps) {
   const [openMenu, setOpenMenu] = useState<Boolean>(false);
+  const { currentUser } = useAuth();
 
   return (
     <motion.div 
@@ -32,7 +34,7 @@ export default function Post ({ post }: IPostProps) {
           <p className="ml-2 flex items-center">{post?.user?.name.slice(0, 5)}...</p> 
         </div>
         <div className="relative">
-          <button onClick={() => setOpenMenu(true)}><BsThreeDots /></button>
+          {currentUser?.id === post.user?.id && <button onClick={() => setOpenMenu(true)}><BsThreeDots /></button>}
           {openMenu && (
             <>
               <motion.div 
@@ -40,7 +42,9 @@ export default function Post ({ post }: IPostProps) {
                 animate={{ y: 0, opacity: 1 }}
                 className="border-[1px] border-[#e6e6e6] bg-white rounded-md p-2 absolute right-0 z-10"
               >
-                <button className="text-teal-400 flex items-center font-normal">Edit <AiOutlineEdit className="ml-1" /></button>
+                <Link href={`/edit/${post.id}`}>
+                  <button className="text-teal-400 flex items-center font-normal">Edit <AiOutlineEdit className="ml-1" /></button>
+                </Link>
                 <div className="p-[0.02rem] bg-[#e6e6e6] my-1"></div>
                 <button onClick={async () => await deleteDoc(doc(db, "posts", post.id))}className="text-red-400 flex items-center font-normal">Delete <MdOutlineDelete className="ml-1" /></button>
               </motion.div> 
@@ -69,7 +73,7 @@ export default function Post ({ post }: IPostProps) {
 
         <div className='flex justify-between items-center p-3 text-xs lg:text-base'>
           <div>
-            <p>Status : <span className={`${post.status ? "text-green-500" : "text-red-500"}`}>{post.status ? "Open" : "Closed"}</span></p>
+            <p>Status : <span className={`${post.isOpen ? "text-green-500" : "text-red-500"}`}>{post.isOpen ? "Open" : "Closed"}</span></p>
           </div>
           <div>
             <Link href={`/view/${post.id}`}><button className="bg-teal-400 py-1 px-5 text-white rounded-xl">View</button></Link>

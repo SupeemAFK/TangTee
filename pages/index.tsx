@@ -32,7 +32,7 @@ const Home: NextPage = () => {
           img: data.img,
           max_participants: data.max_participants,
           tags: data.tags,
-          status: data.status,
+          isOpen: data.isOpen,
           user,
           participants: data.participants,
           createdAt: new Date(data.createdAt * 1000)
