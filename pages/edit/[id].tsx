@@ -4,7 +4,6 @@ import IPost from '../../interface/post';
 import IUser from '../../interface/user'
 import { db } from '../../lib/firebase';
 import { getDoc, doc, DocumentData, DocumentSnapshot } from "firebase/firestore"; 
-import Navbar from '../../components/Navbar'
 import Tag from '../../components/Tag'
 import { useAuth } from '../../context/AuthContext'
 import { motion } from 'framer-motion';
@@ -60,7 +59,6 @@ export default function Edit (props: IEditProps) {
     if (post == null) {
         return (
             <>
-                <Navbar />
                 <div className="mt-16 p-5 flex flex-col items-center text-teal-400">
                     <div className="mt-5 w-fullflex justify-center">
                         <h1 className="text-3xl font-medium">Post cannot be found</h1>
@@ -77,7 +75,6 @@ export default function Edit (props: IEditProps) {
 
     return (
         <>
-                <Navbar />
                 <motion.div 
                     initial="hidden"
                     animate="visible"

@@ -4,7 +4,6 @@ import Head from 'next/head';
 import { AnimatePresence, motion } from 'framer-motion';
 
 //components
-import Navbar from '../components/Navbar';
 import Post from '../components/Post'
 import AddPost from '../components/AddPost'
 
@@ -62,7 +61,6 @@ const Home: NextPage = () => {
       <Head>
         <title>Tang Tee</title>
       </Head>
-      <Navbar />
       <div className="min-w-screen mt-16 py-5 flex flex-col items-center">
         <div>
           <AddPost />

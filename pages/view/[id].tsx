@@ -3,7 +3,6 @@ import { useRouter } from 'next/router'
 import IPost from '../../interface/post';
 import { db } from '../../lib/firebase';
 import { getDoc, doc, DocumentData } from "firebase/firestore"; 
-import Navbar from '../../components/Navbar'
 import Tag from '../../components/Tag'
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -42,7 +41,6 @@ export default function PostDetail (props: IPostDetailProps) {
     if (post == null) {
         return (
             <>
-                <Navbar />
                 <div className="mt-16 p-5 flex flex-col items-center text-teal-400">
                     <div className="mt-5 w-fullflex justify-center">
                         <h1 className="text-3xl font-medium">Post cannot be found</h1>
@@ -59,7 +57,6 @@ export default function PostDetail (props: IPostDetailProps) {
 
     return (
         <>
-            <Navbar />
             <motion.div 
                 initial="hidden"
                 animate="visible"

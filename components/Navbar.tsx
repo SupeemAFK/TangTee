@@ -30,10 +30,12 @@ export default function Navbar (props: INavbarProps) {
                 <p className="hidden md:block ml-2">{currentUser.name}</p> 
                 </>
             ) : (
-                <>
-                <h1 className="text-white font-bold text-xl">Tang Tee</h1>
-                <div className="w-6 ml-2"><img className="object-cover w-full" src="/icon.png" alt="icon"/></div>
-                </>
+                <Link href="/">
+                    <div className="flex cursor-pointer">
+                        <h1 className="text-white font-bold text-xl">Tang Tee</h1>
+                        <div className="w-6 ml-2"><img className="object-cover w-full" src="/icon.png" alt="icon"/></div>
+                    </div>
+                </Link>
             )}
         </div>
         <div className='flex justify-end flex-1'>

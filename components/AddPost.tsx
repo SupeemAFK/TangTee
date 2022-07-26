@@ -111,9 +111,12 @@ export default function AddPost (props: IAddPostProps) {
             </div>
           )}
           {postForm.img.url !== "" && (
-            <div className="flex justify-center mt-2 max-h-96 overflow-y-auto">
-              <div>
-                <img className="w-full object-cover" src={postForm.img.url} alt="input file" />
+            <div className="relative">
+              <button onClick={() => setPostForm({ ...postForm, img: { url: "", file: {} as File }})} className="absolute top-1 right-5 text-white bg-teal-400 opacity-70 flex justify-center items-center w-7 h-7 p-2 rounded-full transition-all duration-300 hover:opacity-100">X</button>
+              <div className="flex justify-center mt-2 max-h-96 overflow-y-auto scrollbar">
+                <div>
+                  <img className="w-full object-cover" src={postForm.img.url} alt="input file" />
+                </div>
               </div>
             </div>
           )}
