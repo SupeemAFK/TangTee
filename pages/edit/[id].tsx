@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router'
 import IPost from '../../interface/post';
-import IUser from '../../interface/user'
+import getUser from '../../utils/getUser';
 import { db } from '../../lib/firebase';
 import { getDoc, doc, DocumentData, DocumentSnapshot } from "firebase/firestore"; 
 import Tag from '../../components/Tag'
@@ -42,19 +42,6 @@ export default function Edit (props: IEditProps) {
             })
         }
     }, [id])
-
-    async function getUser(id: string): Promise<IUser> {
-        const docSnap: DocumentSnapshot = await getDoc(doc(db, "users", id));
-        const user: DocumentData | undefined = docSnap.data()
-        return {
-          id: docSnap.id,
-          name: user?.name,
-          avatar: user?.avatar,
-          bio: user?.avatar,
-          stars: user?.stars,
-          status: user?.status,
-        }
-    }
 
     if (post == null) {
         return (

@@ -8,6 +8,7 @@ import { AiOutlineEdit } from 'react-icons/ai'
 import { db } from '../lib/firebase';
 import { deleteDoc, doc } from "firebase/firestore"; 
 import { useAuth } from '../context/AuthContext'
+import { usePostsContext } from '../context/PostContext'
 import Tag from './Tag'
 
 export interface IPostProps {
@@ -17,6 +18,13 @@ export interface IPostProps {
 export default function Post ({ post }: IPostProps) {
   const [openMenu, setOpenMenu] = useState<Boolean>(false);
   const { currentUser } = useAuth();
+  const { setPosts, posts } = usePostsContext();
+
+  function deletePost(): void {
+    deleteDoc(doc(db, "posts", post.id));
+    const deletePosts = posts.filter(p => p.id !== post.id)
+    setPosts(deletePosts);
+  }
 
   return (
     <motion.div 
@@ -46,7 +54,7 @@ export default function Post ({ post }: IPostProps) {
                   <button className="text-teal-400 flex items-center font-normal">Edit <AiOutlineEdit className="ml-1" /></button>
                 </Link>
                 <div className="p-[0.02rem] bg-[#e6e6e6] my-1"></div>
-                <button onClick={async () => await deleteDoc(doc(db, "posts", post.id))}className="text-red-400 flex items-center font-normal">Delete <MdOutlineDelete className="ml-1" /></button>
+                <button onClick={deletePost}className="text-red-400 flex items-center font-normal">Delete <MdOutlineDelete className="ml-1" /></button>
               </motion.div> 
               <div onClick={() => setOpenMenu(false)} className="w-full h-screen mt-16 fixed top-0 left-0"></div> 
             </>

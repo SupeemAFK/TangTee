@@ -79,7 +79,7 @@ export default function AuthContext ({ children }: IAuthContextProps) {
                 signinFacebook, 
                 signout,
                 currentUser 
-            }}
+            } as IContext}
         >
             {children}
         </authContext.Provider>

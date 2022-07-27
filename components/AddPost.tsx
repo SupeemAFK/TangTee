@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import IImage from '../interface/img'
+import IPost from '../interface/post'
+import getUser from '../utils/getUser';
 import { BiImageAdd } from 'react-icons/bi';
 import { BsEmojiSmile } from 'react-icons/bs'
 import dynamic from 'next/dynamic';
 const Picker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 import { useAuth } from '../context/AuthContext';
+import { usePostsContext } from '../context/PostContext'
 import { db } from '../lib/firebase';
-import { collection, addDoc } from "firebase/firestore"; 
+import { collection, addDoc, getDoc, DocumentData, DocumentSnapshot, doc } from "firebase/firestore"; 
 import { getStorage, ref, uploadBytes, getDownloadURL, FirebaseStorage, StorageReference, UploadResult } from "firebase/storage";
 import Tag from './Tag';
 
@@ -25,6 +28,7 @@ interface IPostForm {
 
 export default function AddPost (props: IAddPostProps) {
   const { currentUser } = useAuth();
+  const { setPosts, posts } = usePostsContext();
   const [loading, setLoading] = useState<boolean>(false);
   const [focusInputName, setFocusInputName] = useState<string>("title");
   const [postForm, setPostForm] = useState<IPostForm>({ title: "", img: { url: "", file: {} as File }, tags: "", details: "", max_participants: 1 });
@@ -53,7 +57,7 @@ export default function AddPost (props: IAddPostProps) {
         imgUrl = await getDownloadURL(snapshot.ref) 
       }
   
-      await addDoc(collection(db, "posts"), {
+      const docRef = await addDoc(collection(db, "posts"), {
         title: postForm.title,
         details: postForm.details,
         img: imgUrl,
@@ -64,8 +68,29 @@ export default function AddPost (props: IAddPostProps) {
         participants: [],
         createdAt: Date.now() 
       });
-      setPostForm({ title: "", img: { url: "", file: {} as File }, tags: "", details: "", max_participants: 1 })
-      setLoading(false);
+      getDoc(docRef)
+            .then(async docSnap => {
+                const data: DocumentData | undefined = docSnap.data();
+                if (data) {
+                    const id: string = docSnap.id;
+                    const user = await getUser(data?.user_id);
+                    const newPost: IPost = {
+                      id,
+                      title: data?.title,
+                      details: data?.details,
+                      img: data?.img,
+                      user,
+                      max_participants: data?.max_participants,
+                      tags: data?.tags,
+                      isOpen: data?.isOpen,
+                      participants: data?.participants,
+                      createdAt: new Date(data?.createdAt * 1000)
+                    }
+                    setPosts([newPost, ...posts]);
+                    setPostForm({ title: "", img: { url: "", file: {} as File }, tags: "", details: "", max_participants: 1 })
+                    setLoading(false);
+                }
+            })
     }
   }
 

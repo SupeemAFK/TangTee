@@ -2,6 +2,7 @@ import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router';
 import AuthContext from '../context/AuthContext'
+import PostContext from '../context/PostContext'
 import Navbar from '../components/Navbar';
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -18,8 +19,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <AuthContext>
-      <Navbar />
-      <Component {...pageProps} />    
+      <PostContext>
+        <Navbar />
+        <Component {...pageProps} />  
+      </PostContext>  
     </AuthContext>
   )
 }
