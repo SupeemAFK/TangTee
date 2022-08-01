@@ -10,7 +10,7 @@ import AddPost from '../components/AddPost'
 
 const Home: NextPage = () => {
   const { posts } = usePostsContext()
-
+  
   return (
     <>
       <Head>

@@ -9,7 +9,7 @@ export default async function getUser(id: string): Promise<IUser> {
       id: docSnap.id,
       name: user?.name,
       avatar: user?.avatar,
-      bio: user?.avatar,
+      bio: user?.bio,
       stars: user?.stars,
       status: user?.status,
     }

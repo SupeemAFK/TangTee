@@ -10,7 +10,7 @@ const Picker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 import { useAuth } from '../context/AuthContext';
 import { usePostsContext } from '../context/PostContext'
 import { db } from '../lib/firebase';
-import { collection, addDoc, getDoc, DocumentData, DocumentSnapshot, doc } from "firebase/firestore"; 
+import { collection, addDoc, getDoc, DocumentData } from "firebase/firestore"; 
 import { getStorage, ref, uploadBytes, getDownloadURL, FirebaseStorage, StorageReference, UploadResult } from "firebase/storage";
 import Tag from './Tag';
 

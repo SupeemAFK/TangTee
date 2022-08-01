@@ -62,42 +62,42 @@ export default function Edit (props: IEditProps) {
 
     return (
         <>
-                <motion.div 
-                    initial="hidden"
-                    animate="visible"
-                    variants={{
-                        hidden: { y: -100, opacity: 0 },
-                        visible: { y: 0, opacity: 1, },
-                    }}
-                    className="mt-16 p-5 flex flex-col items-center"
-                >
-                    {post?.img && (
-                        <div className="w-full md:w-1/2">
-                            <img className="object-cover w-full" src={post.img} alt={post.title} />
-                        </div>
-                    )}
-                    <div className="mt-5 w-full md:w-1/2">
-                        <h1 className="text-3xl font-medium">{post.title}</h1>
+            <motion.div 
+                initial="hidden"
+                animate="visible"
+                variants={{
+                    hidden: { y: -100, opacity: 0 },
+                    visible: { y: 0, opacity: 1, },
+                }}
+                className="mt-16 p-5 flex flex-col items-center"
+            >
+                {post?.img && (
+                    <div className="w-full md:w-1/2">
+                        <img className="object-cover w-full" src={post.img} alt={post.title} />
                     </div>
-                    <div className="mt-5 w-full md:w-1/2 flex items-center justify-between">
-                        <div>
-                            {post && post.tags.length > 0 && (
-                                <div className='w-full flex justify-center mt-1'>
-                                    {post.tags.map(tag => (
-                                        <Tag key={tag} tag={tag} />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                        <button className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>
+                )}
+                <div className="mt-5 w-full md:w-1/2">
+                    <h1 className="text-3xl font-medium">{post.title}</h1>
+                </div>
+                <div className="mt-5 w-full md:w-1/2 flex items-center justify-between">
+                    <div>
+                        {post && post.tags.length > 0 && (
+                            <div className='w-full flex justify-center mt-1'>
+                                {post.tags.map(tag => (
+                                    <Tag key={tag} tag={tag} />
+                                ))}
+                            </div>
+                        )}
                     </div>
-                    <div className="w-full md:w-1/2 mt-5">
-                        <p>Status : <span className={`${post.isOpen ? "text-green-500" : "text-red-500"}`}>{post.isOpen ? "Open" : "Closed"}</span></p>
-                    </div>
-                    <div className="w-full md:w-1/2 mt-5">
-                        <p>{post.details}</p>
-                    </div>
-                </motion.div>
-            </>
+                    <button className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>
+                </div>
+                <div className="w-full md:w-1/2 mt-5">
+                    <p>Status : <span className={`${post.isOpen ? "text-green-500" : "text-red-500"}`}>{post.isOpen ? "Open" : "Closed"}</span></p>
+                </div>
+                <div className="w-full md:w-1/2 mt-5">
+                    <p>{post.details}</p>
+                </div>
+            </motion.div>
+        </>
     );
 }

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { signInWithPopup, signOut, FacebookAuthProvider, onAuthStateChanged } from "firebase/auth";
 import { setDoc, getDoc, doc, DocumentData, DocumentSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
+import { getStorage, ref, uploadBytes, getDownloadURL, FirebaseStorage, StorageReference, UploadResult } from "firebase/storage";
 import IUser from '../interface/user';
 
 export interface IAuthContextProps {
@@ -30,7 +31,7 @@ export default function AuthContext ({ children }: IAuthContextProps) {
                     id: docSnap.id,
                     name: user?.name,
                     avatar: user?.avatar,
-                    bio: user?.avatar,
+                    bio: user?.bio,
                     stars: user?.stars,
                     status: user?.status,
                 });
@@ -43,18 +44,28 @@ export default function AuthContext ({ children }: IAuthContextProps) {
 
     function signinFacebook(): void {
         signInWithPopup(auth, new FacebookAuthProvider())
-            .then((result) => {
+            .then(async (result) => {
                 const user = result.user;
+
                 const credential = FacebookAuthProvider.credentialFromResult(result);
                 const accessToken = credential?.accessToken;
+
+                const res = await fetch(user.photoURL + `?access_token=${accessToken}&width=500`)
+                const blob = await res.blob();
+
+                const storage: FirebaseStorage = getStorage();
+                const storageRef: StorageReference = ref(storage, user?.displayName + user?.uid);
+                const snapshot: UploadResult = await uploadBytes(storageRef, blob);
+                const imgUrl = await getDownloadURL(snapshot.ref);
+
                 setDoc(doc(db, "users", user.uid), {
                     name: user?.displayName ? user.displayName : "",
-                    avatar: user?.photoURL ? user.photoURL + `?access_token=${accessToken}`: "",
+                    avatar: imgUrl ? imgUrl : "",
                     bio: "Write something here",
                     stars: 5,
                     status: "Chilling",
                 });
-                router.push("/")
+                router.push('/')
             })
             .catch((error) => {
                 const errorMessage = error.message;

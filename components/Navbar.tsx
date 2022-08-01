@@ -24,9 +24,11 @@ export default function Navbar (props: INavbarProps) {
                         <button className="mr-5 text-2xl"><AiOutlineHome /></button>
                     </Link>
                 </div>
-                <div className="hidden md:block w-10 h-10 rounded-full overflow-hidden">
-                    <img className="object-cover w-full" src={currentUser.avatar} alt={currentUser.name} />
-                </div>
+                <Link href={`/user/${currentUser.id}`}>
+                    <div className="hidden md:block w-10 h-10 rounded-full overflow-hidden cursor-pointer">
+                        <img className="object-cover w-full" src={currentUser.avatar} alt={currentUser.name} />
+                    </div>
+                </Link> 
                 <p className="hidden md:block ml-2">{currentUser.name}</p> 
                 </>
             ) : (
