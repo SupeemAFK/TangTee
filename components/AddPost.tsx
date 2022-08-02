@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import IImage from '../interface/img'
 import IPost from '../interface/post'
-import getUser from '../utils/getUser';
+import { getUser } from '../hooks/useGetUser';
 import { BiImageAdd } from 'react-icons/bi';
 import { BsEmojiSmile } from 'react-icons/bs'
 import dynamic from 'next/dynamic';

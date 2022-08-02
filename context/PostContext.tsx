@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import IPost from '../interface/post'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../lib/firebase'
-import getUser from '../utils/getUser'
+import { getUser } from '../hooks/useGetUser'
 
 export interface IPostContextProps {
     children: React.ReactNode
