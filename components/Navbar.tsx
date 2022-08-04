@@ -6,7 +6,7 @@ import { GiHamburgerMenu } from 'react-icons/gi'
 import { HiDocumentAdd } from 'react-icons/hi'
 import { AiOutlineHome } from 'react-icons/ai'
 import MobileSidebar from './MobileSidebar'
-import { onSnapshot, collection } from 'firebase/firestore'
+import { onSnapshot, collection, DocumentSnapshot } from 'firebase/firestore'
 import INotify from '../interface/notify'
 import IUser from '../interface/user'
 import IPost from '../interface/post'
@@ -24,22 +24,26 @@ export default function Navbar (props: INavbarProps) {
 
     useEffect(() => {
         onSnapshot(collection(db, "join"), async (snapshot) => {
-            const joins: INotify[] = await Promise.all(snapshot.docs.map(async doc =>  {
+            const filterJoins: DocumentSnapshot[] = snapshot.docs.filter(doc => {
+                const data = doc.data();
+                return data.to_user_id === currentUser?.id
+            })
+            const joins: INotify[] = await Promise.all(filterJoins.map(async doc =>  {
                 const data = doc.data()
-                const fromUser: IUser = await getUser(data.from_user_id)
-                const post: IPost = await getPost(data.post_id)
+                const fromUser: IUser = await getUser(data?.from_user_id)
+                const post: IPost = await getPost(data?.post_id)
 
                 return {
                     id: doc.id,
-                    isRead: data.isRead,
+                    isRead: data?.isRead,
                     from_user: fromUser,
                     post
-                }
+                }     
             }))
             setJoins(joins);
         })
     }, [])
-
+    console.log(joins);
     return (
         <div className="py-2 px-5 h-16 bg-teal-400 flex items-center text-white fixed top-0 w-full z-20">
             <div className="flex items-center flex-1">
@@ -72,7 +76,7 @@ export default function Navbar (props: INavbarProps) {
                         <Link href="/">
                             <button className="mr-5 text-2xl"><HiDocumentAdd /></button>
                         </Link>
-                        <button className="mr-5 text-2xl relative p-1"><BsBellFill /> <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{joins?.length}</div></button>
+                        <button className="mr-5 text-2xl relative p-1"><BsBellFill /> {joins?.length !== 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{joins?.length}</div>}</button>
                         <button onClick={() => signout()} className="p-2 border-2 border-white text-white rounded-md">Sign out</button>
                     </div>
                 ) : (
