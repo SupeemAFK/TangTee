@@ -94,7 +94,7 @@ export default function Post ({ post }: IPostProps) {
           </div>
           <div>
             <Link href={`/view/${post.id}`}><button className="bg-teal-400 py-1 px-5 text-white rounded-xl">View</button></Link>
-            <button onClick={join} className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>
+            {post.user?.id !== currentUser?.id && <button onClick={join} className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>}
           </div>
         </div>
     </motion.div>
