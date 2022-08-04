@@ -6,6 +6,7 @@ import { db } from '../lib/firebase'
 export interface IUseGetUser {
   loading: boolean;
   user: IUser | null;
+  setUser: React.Dispatch<React.SetStateAction<IUser | null>>
 }
 
 export default function useGetUser(id: string): IUseGetUser {
@@ -26,7 +27,8 @@ export default function useGetUser(id: string): IUseGetUser {
 
   return {
     loading,
-    user
+    user,
+    setUser
   }
 }
 

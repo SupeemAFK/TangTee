@@ -6,7 +6,7 @@ import { BsThreeDots } from 'react-icons/bs';
 import { MdOutlineDelete } from 'react-icons/md'
 import { AiOutlineEdit } from 'react-icons/ai'
 import { db } from '../lib/firebase';
-import { deleteDoc, doc } from "firebase/firestore"; 
+import { deleteDoc, doc, addDoc, collection } from "firebase/firestore"; 
 import { useAuth } from '../context/AuthContext'
 import { usePostsContext } from '../context/PostContext'
 import Tag from './Tag'
@@ -19,6 +19,15 @@ export default function Post ({ post }: IPostProps) {
   const [openMenu, setOpenMenu] = useState<Boolean>(false);
   const { currentUser } = useAuth();
   const { setPosts, posts } = usePostsContext();
+
+  async function join() {
+    await addDoc(collection(db, "join"), {
+      isRead: false,
+      post_id: post.id,
+      from_user_id: currentUser?.id,
+      to_user_id: post.user?.id
+    })
+  }
 
   function deletePost(): void {
     deleteDoc(doc(db, "posts", post.id));
@@ -85,7 +94,7 @@ export default function Post ({ post }: IPostProps) {
           </div>
           <div>
             <Link href={`/view/${post.id}`}><button className="bg-teal-400 py-1 px-5 text-white rounded-xl">View</button></Link>
-            <button className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>
+            <button onClick={join} className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>
           </div>
         </div>
     </motion.div>

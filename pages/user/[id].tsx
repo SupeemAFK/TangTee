@@ -1,14 +1,20 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import useGetUser from '../../hooks/useGetUser';
 import { useAuth } from '../../context/AuthContext'
 import { motion } from 'framer-motion';
 import { BsFillStarFill } from 'react-icons/bs'
+import { VscSymbolColor } from 'react-icons/vsc'
 import { useRouter } from 'next/router';
+import { ChromePicker, ColorResult } from "react-color";
+import Modal from '../../components/Modal'
 
 export interface IProfileProps {
 }
 
 export default function Profile (props: IProfileProps) {
+    const [openModal, setOpenModal] = useState<boolean>(false);
+    const [openColorPicker, setOpenColorPicker] = useState<boolean>(false);
+    const [colors, setColors] = useState<ColorResult>({ hex: "#0d9488" } as ColorResult);
     const { currentUser } = useAuth();
     const router = useRouter();
     const { id } = router.query
@@ -32,6 +38,7 @@ export default function Profile (props: IProfileProps) {
             </div>
         )
     }
+
     return (
         <motion.div 
             initial="hidden"
@@ -42,6 +49,42 @@ export default function Profile (props: IProfileProps) {
             }}
             className="min-w-screen min-h-screen mt-16 flex justify-center"
         >
+            {openModal && (
+                <Modal>
+                    {openColorPicker && (
+                        <motion.div
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="absolute z-10"
+                        >
+                           <ChromePicker
+                                color={colors.hex}
+                                onChange={color => setColors(color)}
+                            /> 
+                        </motion.div>
+                    )}
+                    <div className="w-96 flex flex-col items-center">
+                        <div className='bg-slate-300 w-full flex justify-start items-center rounded-t-md p-1'>
+                            <button onClick={() => setOpenModal(false)} className='rounded-full bg-slate-500 opacity-50 w-5 h-5 flex justify-center items-center p-1 text-white'>x</button> 
+                        </div>
+                        <div className="relative w-full h-44 flex flex-col justify-end" style={{ backgroundColor: colors.hex }}>
+                            <button onClick={() => setOpenColorPicker(!openColorPicker)} className="absolute top-2 right-3 text-white"><VscSymbolColor /></button>
+                            <div className="w-full flex justify-start relative mb-12">
+                                <div className="ml-5 w-20 h-20 rounded-full overflow-hidden absolute top-0 border-4 border-white">
+                                    <img className="w-full object-cover" src={user.avatar} alt="profile" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="w-full p-2 mt-7">
+                            <input placeholder="name" className="p-1 mt-2 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+                            <input placeholder="bio" className="p-1 mt-2 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+                        </div>
+                        <div className="flex justify-end w-full mb-2 p-2">
+                            <button className="bg-teal-400 py-1 px-5 text-white rounded-xl">Done</button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
             <div className="w-full lg:w-1/2 flex flex-col items-center">
                 <div className="bg-teal-700 w-full h-44 flex flex-col justify-end">
                     <div className="w-full flex justify-start relative mb-12">
@@ -53,7 +96,7 @@ export default function Profile (props: IProfileProps) {
                 <div className="border-[1px] border-[#e6e6e6] w-full">
                     {user.id === currentUser?.id && (
                         <div className="mt-5 mr-5 flex justify-end">
-                            <button className="bg-teal-400 py-1 px-5 text-white rounded-xl">Edit</button>
+                            <button onClick={() => setOpenModal(true)} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Edit</button>
                         </div>
                     )}
                     <div className="my-7 ml-5">
