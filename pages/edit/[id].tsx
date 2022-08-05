@@ -4,7 +4,6 @@ import useGetPost from '../../hooks/useGetPost';
 import Tag from '../../components/Tag'
 import { useAuth } from '../../context/AuthContext'
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 
 export interface IEditProps {
 }
@@ -20,6 +19,16 @@ export default function Edit (props: IEditProps) {
             router.push('/404')
         }
     }, [loading])
+
+    useEffect(() => {
+        if (currentUser) {
+            if (currentUser?.id === post?.user?.id) {
+                router.push('/404')
+            }
+        } else {
+            router.push('/404')
+        }
+    }, [currentUser])
 
     if (loading || !post) {
         return (
