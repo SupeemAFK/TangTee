@@ -65,7 +65,7 @@ export default function Post ({ post }: IPostProps) {
                 <div className="p-[0.02rem] bg-[#e6e6e6] my-1"></div>
                 <button onClick={deletePost}className="text-red-400 flex items-center font-normal">Delete <MdOutlineDelete className="ml-1" /></button>
               </motion.div> 
-              <div onClick={() => setOpenMenu(false)} className="w-full h-screen mt-16 fixed top-0 left-0"></div> 
+              <div onClick={() => setOpenMenu(false)} className="w-full h-screen fixed top-0 left-0 z-50"></div> 
             </>
           )}
         </div>

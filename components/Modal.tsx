@@ -10,7 +10,7 @@ export default function Modal ({ children }: IModalProps) {
     <motion.div
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      className='w-screen min-h-screen fixed flex justify-center items-center'
+      className='w-screen min-h-screen fixed flex justify-center items-center z-20'
     >
       <div className='bg-white rounded-md border-[1px] border-[#e6e6e6]'>
         {children}

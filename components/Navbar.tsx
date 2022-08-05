@@ -54,7 +54,7 @@ export default function Navbar (props: INavbarProps) {
                     <>
                     <div className="flex items-center">
                         <Link href="/">
-                            <button className="mr-5 text-2xl"><AiOutlineHome /></button>
+                            <button onClick={() => setOpenSidebar(false)}className="mr-5 text-2xl"><AiOutlineHome /></button>
                         </Link>
                     </div>
                     <Link href={`/user/${currentUser.id}`}>
@@ -96,7 +96,13 @@ export default function Navbar (props: INavbarProps) {
                     <button onClick={() => setOpenSidebar(!openSidebar)} className='text-2xl'><GiHamburgerMenu /></button>
                 </div>
             )}
-            <MobileSidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} signout={signout} currentUser={currentUser} />
+            <MobileSidebar 
+                openSidebar={openSidebar} 
+                setOpenSidebar={setOpenSidebar} 
+                signout={signout} 
+                currentUser={currentUser} 
+                joins={joins}
+            />
         </div>
     );
 }
