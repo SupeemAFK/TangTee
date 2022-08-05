@@ -10,6 +10,7 @@ import { deleteDoc, doc, addDoc, collection } from "firebase/firestore";
 import { useAuth } from '../context/AuthContext'
 import { usePostsContext } from '../context/PostContext'
 import Tag from './Tag'
+import join from '../utils/join'
 
 export interface IPostProps {
     post: IPost
@@ -20,13 +21,8 @@ export default function Post ({ post }: IPostProps) {
   const { currentUser } = useAuth();
   const { setPosts, posts } = usePostsContext();
 
-  async function join() {
-    await addDoc(collection(db, "join"), {
-      isRead: false,
-      post_id: post.id,
-      from_user_id: currentUser?.id,
-      to_user_id: post.user?.id
-    })
+  function handleJoin() {
+    currentUser && join(post, currentUser)
   }
 
   function deletePost(): void {
@@ -94,7 +90,7 @@ export default function Post ({ post }: IPostProps) {
           </div>
           <div>
             <Link href={`/view/${post.id}`}><button className="bg-teal-400 py-1 px-5 text-white rounded-xl">View</button></Link>
-            {post.user?.id !== currentUser?.id && <button onClick={join} className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>}
+            {(currentUser && post.user?.id !== currentUser?.id) && <button onClick={handleJoin} className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>}
           </div>
         </div>
     </motion.div>

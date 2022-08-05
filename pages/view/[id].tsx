@@ -3,6 +3,8 @@ import { useRouter } from 'next/router'
 import Tag from '../../components/Tag'
 import { motion } from 'framer-motion';
 import useGetPost from '../../hooks/useGetPost';
+import { useAuth } from '../../context/AuthContext'
+import join from '../../utils/join'
 
 export interface IPostDetailProps {
 }
@@ -11,6 +13,7 @@ export default function PostDetail (props: IPostDetailProps) {
     const router = useRouter();
     const { id } = router.query;
     const { post, loading } = useGetPost(id as string);
+    const { currentUser } = useAuth();
 
     useEffect(() => {
         if (!loading && !post) {
@@ -60,7 +63,7 @@ export default function PostDetail (props: IPostDetailProps) {
                             </div>
                         )}
                     </div>
-                    <button className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>
+                    {(currentUser && post.user?.id !== currentUser?.id) && <button onClick={() => currentUser && join(post, currentUser)}className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>}
                 </div>
                 <div className="w-full md:w-1/2 mt-5">
                     <p>Status : <span className={`${post.isOpen ? "text-green-500" : "text-red-500"}`}>{post.isOpen ? "Open" : "Closed"}</span></p>
