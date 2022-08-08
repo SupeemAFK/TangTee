@@ -25,8 +25,8 @@ export default function MobileNotify ({ joins, setOpenMobileNotify }: IMobileNot
             {joins.length > 0 ? (
                 <div>
                     {joins.map(join => (
-                        <Link key={join.id} href={`/`}>
-                            <div className="flex mt-2 p-2 items-center cursor-pointer rounded border-[1px] border-[#e6e6e6] hover:border-teal-400 transition-all duration-300">
+                        <Link key={join.id} href={`/manage/${join.post.id}`}>
+                            <div onClick={() => setOpenMobileNotify(false)} className="flex mt-2 p-2 items-center cursor-pointer rounded border-[1px] border-[#e6e6e6] hover:border-teal-400 transition-all duration-300">
                                 <div className='w-10 h-10 rounded-full overflow-hidden'>
                                     <img className="w-full object-cover" src={join.from_user.avatar} alt={join.from_user.name} />
                                 </div>

@@ -53,15 +53,15 @@ export default function Post ({ post }: IPostProps) {
               <motion.div 
                 initial={{ y: -20, opacity: 0, }}
                 animate={{ y: 0, opacity: 1 }}
-                className="border-[1px] border-[#e6e6e6] bg-white rounded-md p-2 absolute right-0 z-10"
+                className="border-[1px] border-[#e6e6e6] bg-white rounded-md p-2 absolute right-0 z-50"
               >
-                <Link href={`/edit/${post.id}`}>
-                  <button className="text-teal-400 flex items-center font-normal">Edit <AiOutlineEdit className="ml-1" /></button>
+                <Link href={`/manage/${post.id}`}>
+                  <button className="text-teal-400 flex items-center font-normal">Manage <AiOutlineEdit className="ml-1" /></button>
                 </Link>
                 <div className="p-[0.02rem] bg-[#e6e6e6] my-1"></div>
                 <button onClick={deletePost}className="text-red-400 flex items-center font-normal">Delete <MdOutlineDelete className="ml-1" /></button>
               </motion.div> 
-              <div onClick={() => setOpenMenu(false)} className="w-full h-screen fixed top-0 left-0 z-50"></div> 
+              <div onClick={() => setOpenMenu(false)} className="w-full h-screen fixed top-0 left-0 z-40"></div> 
             </>
           )}
         </div>

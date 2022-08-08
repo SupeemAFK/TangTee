@@ -82,7 +82,7 @@ export default function Navbar (props: INavbarProps) {
                         <button onClick={() => setOpenNotify(!openNotify)} id="notify-btn" className="mr-5 text-2xl relative p-1"><BsBellFill /> {joins?.length !== 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{joins?.length}</div>}</button>
                         <button onClick={() => signout()} className="p-2 border-2 border-white text-white rounded-md">Sign out</button>
                         {openNotify && (
-                            <Notify joins={joins} />
+                            <Notify joins={joins} setOpenNotify={setOpenNotify} />
                         )}
                     </div>
                 ) : (

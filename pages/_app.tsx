@@ -1,6 +1,8 @@
 import '../styles/globals.css'
+import 'react-toastify/dist/ReactToastify.css';
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router';
+import { ToastContainer } from 'react-toastify';
 import AuthContext from '../context/AuthContext'
 import PostContext from '../context/PostContext'
 import Navbar from '../components/Navbar';
@@ -21,6 +23,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <AuthContext>
       <PostContext>
         <Navbar />
+        <ToastContainer />
         <Component {...pageProps} />  
       </PostContext>  
     </AuthContext>
