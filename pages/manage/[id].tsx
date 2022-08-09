@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import useGetPost from '../../hooks/useGetPost';
 import Tag from '../../components/Tag'
 import { useAuth } from '../../context/AuthContext'
+import { useJoin } from '../../context/JoinContext';
 import { motion } from 'framer-motion';
 import { BiImageAdd } from 'react-icons/bi'
 import { BsCheckCircle } from 'react-icons/bs'
@@ -28,12 +29,14 @@ interface IEditPostForm {
 }
 
 export default function Edit (props: IEditProps) {
+    const [requestUsers, setRequestUsers] = useState<IUser[]>([]);
     const [editPostForm, setEditPostForm] = useState<IEditPostForm>({ title: "", details: "", max_participants: 0, img: { url: "", file: {} as File }, tags: "", isOpen: false });
-    const [checkUsers, setCheckUsers] = useState<string[]>([])
+    const [checkUsers, setCheckUsers] = useState<IUser[]>([])
     const router = useRouter();
     const { id } = router.query;
     const { post, loading } = useGetPost(id as string);
     const { posts, setPosts } = usePostsContext();
+    const { joins } = useJoin();
     const { currentUser } = useAuth()
 
     useEffect(() => {
@@ -46,6 +49,12 @@ export default function Edit (props: IEditProps) {
             isOpen: post.isOpen
         })
     }, [post])
+
+    useEffect(() => {
+        const filterJoins = joins.filter(join => join.post.id === post?.id)
+        const joinUsers = filterJoins.map(join => join.from_user)
+        setRequestUsers(joinUsers)
+    }, [joins, post])
 
     /*useEffect(() => {
         if (!loading && !post) {
@@ -111,9 +120,10 @@ export default function Edit (props: IEditProps) {
         setEditPostForm({ ...editPostForm, [name]: value })
     }
 
-    function handleCheckboxChange(user: string) {
-        if (checkUsers.includes(user)) {
-            const filterUser = checkUsers.filter(checkUser => checkUser !== user)
+    function handleCheckboxChange(user: IUser) {
+        const alreadyInCheckList = checkUsers.find(checkUser => checkUser.id === user.id)
+        if (alreadyInCheckList) {
+            const filterUser = checkUsers.filter(checkUser => checkUser.id !== user.id)
             setCheckUsers(filterUser);
         } else {
             setCheckUsers([...checkUsers, user]);
@@ -209,16 +219,16 @@ export default function Edit (props: IEditProps) {
                     <h1 className="mb-5 text-3xl font-medium text-teal-400">Manage User</h1>
                     <h1>{checkUsers.length}/{post.max_participants}</h1>
                     <div className="border-2 border-teal-400 rounded max-h-96 p-3 overflow-auto scrollbar">
-                        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(num => (
-                            <div key={num} className="flex items-center mt-5">
+                        {requestUsers.map(user => (
+                            <div key={user.id} className="flex items-center mt-5">
                                 <div className="flex items-center">
                                     <div className="rounded-full overflow-hidden w-10 h-10">
-                                        <img className="w-full object-cover" src="https://pbs.twimg.com/media/E9dBxilVoAIryXi.jpg" alt="test" />
+                                        <img className="w-full object-cover" src={user.avatar} alt={user.name} />
                                     </div>
-                                    <p className="ml-1">Alan Walker</p> 
+                                    <p className="ml-1">{user.name}</p> 
                                 </div>
                                 <div className="ml-2 flex items-center">
-                                    <input type="checkbox" onChange={() => handleCheckboxChange(String(num))} className="appearance-none w-5 h-5 rounded-md border-2 text-white focus:outline-none checked:bg-teal-400 checked:border-teal-400 transition-all duration-100" disabled={!checkUsers.includes(String(num)) && checkUsers.length >= post.max_participants} />
+                                    <input type="checkbox" onChange={() => handleCheckboxChange(user)} className="appearance-none w-5 h-5 rounded-md border-2 text-white focus:outline-none checked:bg-teal-400 checked:border-teal-400 transition-all duration-100" disabled={checkUsers.find(checkUser => checkUser.id !== user.id) && checkUsers.length >= post.max_participants} />
                                 </div>
                             </div>
                         ))}

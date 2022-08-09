@@ -7,13 +7,7 @@ import { HiDocumentAdd } from 'react-icons/hi'
 import { AiOutlineHome } from 'react-icons/ai'
 import MobileSidebar from './MobileSidebar'
 import Notify from './Notify'
-import { onSnapshot, collection, DocumentSnapshot } from 'firebase/firestore'
-import IJoin from '../interface/join'
-import IUser from '../interface/user'
-import IPost from '../interface/post'
-import { db } from '../lib/firebase'
-import { getUser } from '../hooks/useGetUser'
-import { getPost } from '../hooks/useGetPost'
+import { useJoin } from '../context/JoinContext';
 
 export interface INavbarProps {
 }
@@ -22,30 +16,7 @@ export default function Navbar (props: INavbarProps) {
     const { currentUser, signout } = useAuth();
     const [openSidebar, setOpenSidebar] = useState<boolean>(false);
     const [openNotify, setOpenNotify] = useState<boolean>(false);
-    const [joins, setJoins] = useState<IJoin[]>([]);
-
-    useEffect(() => {
-        onSnapshot(collection(db, "join"), async (snapshot) => {
-            const filterJoins: DocumentSnapshot[] = snapshot.docs.filter(doc => {
-                const data = doc.data();
-                return data.to_user_id === currentUser?.id;
-            })
-
-            const joins: IJoin[] = await Promise.all(filterJoins.map(async doc =>  {
-                const data = doc.data()
-                const fromUser: IUser = await getUser(data?.from_user_id)
-                const post: IPost = await getPost(data?.post_id)
-
-                return {
-                    id: doc.id,
-                    isRead: data?.isRead,
-                    from_user: fromUser,
-                    post
-                }     
-            }))
-            setJoins(joins);
-        })
-    }, [currentUser])
+    const { joins } = useJoin();
 
     return (
         <div className="py-2 px-5 h-16 bg-teal-400 flex items-center text-white fixed top-0 w-full z-20">

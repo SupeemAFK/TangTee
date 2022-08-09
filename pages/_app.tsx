@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { ToastContainer } from 'react-toastify';
 import AuthContext from '../context/AuthContext'
 import PostContext from '../context/PostContext'
+import JoinContext from '../context/JoinContext'
 import Navbar from '../components/Navbar';
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -22,9 +23,11 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <AuthContext>
       <PostContext>
-        <Navbar />
-        <ToastContainer />
-        <Component {...pageProps} />  
+        <JoinContext>
+          <Navbar />
+          <ToastContainer />
+          <Component {...pageProps} />  
+        </JoinContext>
       </PostContext>  
     </AuthContext>
   )

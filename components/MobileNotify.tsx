@@ -30,8 +30,8 @@ export default function MobileNotify ({ joins, setOpenMobileNotify }: IMobileNot
                                 <div className='w-10 h-10 rounded-full overflow-hidden'>
                                     <img className="w-full object-cover" src={join.from_user.avatar} alt={join.from_user.name} />
                                 </div>
-                                <div>
-                                    <h1 className="font-medium ml-2">{join.from_user.name} <span className='font-normal'>want to join your party</span></h1>
+                                <div className='flex-1'>
+                                    <h1 className="font-medium ml-2">{join.from_user.name} <span className='font-normal'>want to join your <span className="font-medium">{join.post.title}</span> party</span></h1>
                                 </div>
                             </div>
                         </Link>
