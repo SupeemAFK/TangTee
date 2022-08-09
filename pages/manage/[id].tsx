@@ -166,7 +166,7 @@ export default function Edit (props: IEditProps) {
                             <BiImageAdd />
                             <input onChange={handleChangeFile} type="file" className="hidden" />
                         </label>
-                        <img className='object-cover w-full brightness-75' src={editPostForm.img.url} alt={editPostForm.title} />
+                        {post.img !== '' && <img className='object-cover w-full brightness-75' src={editPostForm.img.url} alt={editPostForm.title} />}
                     </div>
                     <div className="mt-5 w-full lg:w-1/2">
                         <div className="mt-3">

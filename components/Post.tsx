@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import IPost from '../interface/post';
@@ -6,23 +6,37 @@ import { BsThreeDots } from 'react-icons/bs';
 import { MdOutlineDelete } from 'react-icons/md'
 import { AiOutlineEdit } from 'react-icons/ai'
 import { db } from '../lib/firebase';
-import { deleteDoc, doc, addDoc, collection } from "firebase/firestore"; 
+import { deleteDoc, doc, query, collection, where, getDocs } from "firebase/firestore"; 
 import { useAuth } from '../context/AuthContext'
 import { usePostsContext } from '../context/PostContext'
 import Tag from './Tag'
-import join from '../utils/join'
+import { join, cancelJoin } from '../utils/join'
 
 export interface IPostProps {
     post: IPost
 }
 
+export interface isAlreadyJoined {
+  alreadyJoined: boolean
+  join_id: string
+}
+
 export default function Post ({ post }: IPostProps) {
-  const [openMenu, setOpenMenu] = useState<Boolean>(false);
+  const [isAlreadyJoined, setIsAlreadyJoined] = useState<isAlreadyJoined>({ alreadyJoined: false, join_id: "" });
+  const [openMenu, setOpenMenu] = useState<boolean>(false);
   const { currentUser } = useAuth();
   const { setPosts, posts } = usePostsContext();
 
-  function handleJoin() {
-    currentUser && join(post, currentUser)
+  async function handleJoin() {
+    if (currentUser) {
+      const newJoinID = await join(post, currentUser)
+      newJoinID !== "" && setIsAlreadyJoined({ alreadyJoined: true, join_id: newJoinID }) 
+    }
+  }
+
+  function handleCancel() {
+    cancelJoin(isAlreadyJoined.join_id)
+    setIsAlreadyJoined({ alreadyJoined: false, join_id: ""})
   }
 
   function deletePost(): void {
@@ -30,6 +44,11 @@ export default function Post ({ post }: IPostProps) {
     const deletePosts = posts.filter(p => p.id !== post.id)
     setPosts(deletePosts);
   }
+
+  useEffect(() => {
+    const q = query(collection(db, "join"), where("post_id", "==", post.id), where("from_user_id", "==", currentUser?.id));
+    getDocs(q).then(snap => snap.docs.length > 0 && snap.docs.forEach(doc => setIsAlreadyJoined({ alreadyJoined: true, join_id: doc.id })))
+  }, [post])
 
   return (
     <motion.div 
@@ -90,7 +109,15 @@ export default function Post ({ post }: IPostProps) {
           </div>
           <div>
             <Link href={`/view/${post.id}`}><button className="bg-teal-400 py-1 px-5 text-white rounded-xl">View</button></Link>
-            {(currentUser && post.user?.id !== currentUser?.id) && <button onClick={handleJoin} className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>}
+            {(currentUser && post.user?.id !== currentUser?.id && post.isOpen) && (
+              <>
+              {isAlreadyJoined.alreadyJoined ? (
+                <button onClick={handleCancel} className="bg-red-400 py-1 px-3 text-white rounded-xl ml-2">Cancel</button>
+              ) : (
+                <button onClick={handleJoin} className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>
+              )}
+              </>
+            )}
           </div>
         </div>
     </motion.div>

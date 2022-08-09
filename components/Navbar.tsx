@@ -63,7 +63,8 @@ export default function Navbar (props: INavbarProps) {
                 )}
             </div>
             {currentUser && (
-                <div className="flex items-center md:hidden">
+                <div className="flex items-center md:hidden relative">
+                    {joins?.length !== 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{joins?.length}</div>}
                     <button onClick={() => setOpenSidebar(!openSidebar)} className='text-2xl'><GiHamburgerMenu /></button>
                 </div>
             )}

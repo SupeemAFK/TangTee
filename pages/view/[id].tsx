@@ -1,15 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router'
 import Tag from '../../components/Tag'
 import { motion } from 'framer-motion';
 import useGetPost from '../../hooks/useGetPost';
 import { useAuth } from '../../context/AuthContext'
-import join from '../../utils/join'
+import { join, cancelJoin } from '../../utils/join'
+import { isAlreadyJoined } from '../../components/Post';
+import { query, collection, getDocs, where } from 'firebase/firestore';
+import { db } from '../../lib/firebase'
 
 export interface IPostDetailProps {
 }
 
 export default function PostDetail (props: IPostDetailProps) {
+    const [isAlreadyJoined, setIsAlreadyJoined] = useState<isAlreadyJoined>({ alreadyJoined: false, join_id: "" });
     const router = useRouter();
     const { id } = router.query;
     const { post, loading } = useGetPost(id as string);
@@ -20,6 +24,25 @@ export default function PostDetail (props: IPostDetailProps) {
             router.push('/404')
         }
     }, [loading])
+
+    useEffect(() => {
+        if (post) {
+            const q = query(collection(db, "join"), where("post_id", "==", post.id), where("from_user_id", "==", currentUser?.id));
+            getDocs(q).then(snap => snap.docs.length > 0 && snap.docs.forEach(doc => setIsAlreadyJoined({ alreadyJoined: true, join_id: doc.id })))
+        }
+      }, [post])
+
+    async function handleJoin() {
+        if (currentUser && post) {
+            const newJoinID = await join(post, currentUser)
+            newJoinID !== "" && setIsAlreadyJoined({ alreadyJoined: true, join_id: newJoinID }) 
+        }
+    }
+ 
+    function handleCancel() {
+        cancelJoin(isAlreadyJoined.join_id)
+        setIsAlreadyJoined({ alreadyJoined: false, join_id: ""})
+    }
 
     if (loading || !post) {
         return (
@@ -63,7 +86,14 @@ export default function PostDetail (props: IPostDetailProps) {
                             </div>
                         )}
                     </div>
-                    {(currentUser && post.user?.id !== currentUser?.id) && <button onClick={() => currentUser && join(post, currentUser)}className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>}
+                    {(currentUser && post.user?.id !== currentUser?.id && post.isOpen) && (
+                        <>
+                        {isAlreadyJoined.alreadyJoined ? (
+                            <button onClick={handleCancel} className="bg-red-400 py-1 px-3 text-white rounded-xl ml-2">Cancel</button>
+                        ) : (
+                            <button onClick={handleJoin} className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>                        )}
+                        </>
+                    )}
                 </div>
                 <div className="w-full md:w-1/2 mt-5">
                     <p>Status : <span className={`${post.isOpen ? "text-green-500" : "text-red-500"}`}>{post.isOpen ? "Open" : "Closed"}</span></p>
