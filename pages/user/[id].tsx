@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import { ChromePicker, ColorResult } from "react-color";
 import Modal from '../../components/Modal'
 import IPost from '../../interface/post'
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase'
 import Post from '../../components/Post'
 
@@ -33,8 +33,7 @@ export default function Profile (props: IProfileProps) {
 
     useEffect(() => {
         if (user) {
-           getDocs(query(collection(db, "posts"), where("user_id", "==", user.id)))
-            .then(snapshot => {
+            onSnapshot(query(collection(db, "posts"), where("user_id", "==", user.id), orderBy("createdAt")), (snapshot => {
                 const posts: IPost[] = snapshot.docs.map(doc => {
                     const data = doc.data()
                     return {
@@ -51,7 +50,7 @@ export default function Profile (props: IProfileProps) {
                     }
                 })
                 setUserPosts(posts)
-            })
+            }))
         }
     }, [user])
 

@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import IPost from '../interface/post'
-import { collection, getDocs, query, where } from 'firebase/firestore'
+import { collection, getDocs, query, limit, orderBy } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { getUser } from '../hooks/useGetUser'
 
@@ -19,7 +19,7 @@ export default function PostContext ({ children }: IPostContextProps) {
     const [posts, setPosts] = useState<IPost[] | []>([]);
 
     useEffect(() => {
-        getDocs(collection(db, "posts"))
+        getDocs(query(collection(db, "posts"), orderBy("createdAt"), limit(8)))
             .then(async docSnap => {
                 const dbPosts: IPost[] = await Promise.all(docSnap.docs.map(async doc => {
                     const id = doc.id;
