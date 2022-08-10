@@ -7,11 +7,16 @@ import { VscSymbolColor } from 'react-icons/vsc'
 import { useRouter } from 'next/router';
 import { ChromePicker, ColorResult } from "react-color";
 import Modal from '../../components/Modal'
+import IPost from '../../interface/post'
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../../lib/firebase'
+import Post from '../../components/Post'
 
 export interface IProfileProps {
 }
 
 export default function Profile (props: IProfileProps) {
+    const [userPosts, setUserPosts] = useState<IPost[]>([]);
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [openColorPicker, setOpenColorPicker] = useState<boolean>(false);
     const [colors, setColors] = useState<ColorResult>({ hex: "#0d9488" } as ColorResult);
@@ -25,6 +30,30 @@ export default function Profile (props: IProfileProps) {
             router.push('/404')
         }
     }, [loading])
+
+    useEffect(() => {
+        if (user) {
+           getDocs(query(collection(db, "posts"), where("user_id", "==", user.id)))
+            .then(snapshot => {
+                const posts: IPost[] = snapshot.docs.map(doc => {
+                    const data = doc.data()
+                    return {
+                        id: doc.id,
+                        title: data?.title,
+                        details: data?.details,
+                        img: data?.img,
+                        user,
+                        max_participants: data?.max_participants,
+                        tags: data?.tags,
+                        isOpen: data?.isOpen,
+                        participants: data?.participants,
+                        createdAt: new Date(data?.createdAt * 1000)
+                    }
+                })
+                setUserPosts(posts)
+            })
+        }
+    }, [user])
 
     if (loading || !user) {
         return (
@@ -106,6 +135,9 @@ export default function Profile (props: IProfileProps) {
                             {Array.from(Array(user.stars).keys()).map(star => <BsFillStarFill key={star} />)}
                         </div>
                     </div>
+                </div>
+                <div>
+                    {userPosts.map(post => <Post key={post.id} post={post} />)}
                 </div>
             </div>
         </motion.div>

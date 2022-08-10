@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import IPost from '../interface/post'
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { getUser } from '../hooks/useGetUser'
 

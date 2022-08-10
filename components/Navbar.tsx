@@ -16,7 +16,7 @@ export default function Navbar (props: INavbarProps) {
     const { currentUser, signout } = useAuth();
     const [openSidebar, setOpenSidebar] = useState<boolean>(false);
     const [openNotify, setOpenNotify] = useState<boolean>(false);
-    const { joins } = useJoin();
+    const { joins, notificationsJoins, readNotify } = useJoin();
 
     return (
         <div className="py-2 px-5 h-16 bg-teal-400 flex items-center text-white fixed top-0 w-full z-20">
@@ -50,7 +50,16 @@ export default function Navbar (props: INavbarProps) {
                         <Link href="/">
                             <button className="mr-5 text-2xl"><HiDocumentAdd /></button>
                         </Link>
-                        <button onClick={() => setOpenNotify(!openNotify)} id="notify-btn" className="mr-5 text-2xl relative p-1"><BsBellFill /> {joins?.length !== 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{joins?.length}</div>}</button>
+                        <button 
+                            onClick={() => {
+                                setOpenNotify(!openNotify)
+                                readNotify(notificationsJoins)
+                            }} 
+                            id="notify-btn" 
+                            className="mr-5 text-2xl relative p-1"
+                        >
+                            <BsBellFill /> {notificationsJoins.length > 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{notificationsJoins?.length}</div>}
+                        </button>
                         <button onClick={() => signout()} className="p-2 border-2 border-white text-white rounded-md">Sign out</button>
                         {openNotify && (
                             <Notify joins={joins} setOpenNotify={setOpenNotify} />
@@ -63,9 +72,9 @@ export default function Navbar (props: INavbarProps) {
                 )}
             </div>
             {currentUser && (
-                <div className="flex items-center md:hidden relative">
-                    {joins?.length !== 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{joins?.length}</div>}
-                    <button onClick={() => setOpenSidebar(!openSidebar)} className='text-2xl'><GiHamburgerMenu /></button>
+                <div onClick={() => setOpenSidebar(!openSidebar)} className="flex items-center md:hidden relative cursor-pointer">
+                    {notificationsJoins?.length > 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{notificationsJoins.length}</div>}
+                    <button className='text-2xl'><GiHamburgerMenu /></button>
                 </div>
             )}
             <MobileSidebar 
@@ -74,6 +83,8 @@ export default function Navbar (props: INavbarProps) {
                 signout={signout} 
                 currentUser={currentUser} 
                 joins={joins}
+                notificationsJoins={notificationsJoins}
+                readNotify={readNotify}
             />
         </div>
     );

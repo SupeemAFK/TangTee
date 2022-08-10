@@ -56,13 +56,13 @@ export default function Edit (props: IEditProps) {
         setRequestUsers(joinUsers)
     }, [joins, post])
 
-    /*useEffect(() => {
+    useEffect(() => {
         if (!loading && !post) {
             router.push('/404')
         }
-    }, [loading])*/
+    }, [loading])
 
-    /*useEffect(() => {
+    useEffect(() => {
         if (currentUser) {
             if (currentUser?.id === post?.user?.id) {
                 router.push('/404')
@@ -70,7 +70,7 @@ export default function Edit (props: IEditProps) {
         } else {
             router.push('/404')
         }
-    }, [currentUser])*/
+    }, [currentUser])
 
     async function editPost(): Promise<void> {
         let imgUrl = post?.img;

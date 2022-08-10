@@ -26,11 +26,11 @@ export default function PostDetail (props: IPostDetailProps) {
     }, [loading])
 
     useEffect(() => {
-        if (post) {
+        if (post && currentUser) {
             const q = query(collection(db, "join"), where("post_id", "==", post.id), where("from_user_id", "==", currentUser?.id));
             getDocs(q).then(snap => snap.docs.length > 0 && snap.docs.forEach(doc => setIsAlreadyJoined({ alreadyJoined: true, join_id: doc.id })))
         }
-      }, [post])
+      }, [post, currentUser])
 
     async function handleJoin() {
         if (currentUser && post) {

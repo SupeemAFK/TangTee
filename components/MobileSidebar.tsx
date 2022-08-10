@@ -12,9 +12,11 @@ export interface IMobileSidebarProps {
     currentUser: IUser | null
     signout: () => void
     joins: IJoin[]
+    notificationsJoins: IJoin[]
+    readNotify: (unreadNotify: IJoin[]) => void
 }
 
-export default function MobileSidebar ({ openSidebar, setOpenSidebar, currentUser, signout, joins }: IMobileSidebarProps) {
+export default function MobileSidebar ({ openSidebar, setOpenSidebar, currentUser, signout, joins, notificationsJoins, readNotify }: IMobileSidebarProps) {
   const [openMobileNotify, setOpenMobileNotify] = useState<boolean>(false);
 
   return (
@@ -34,9 +36,10 @@ export default function MobileSidebar ({ openSidebar, setOpenSidebar, currentUse
           onClick={() => {
             setOpenMobileNotify(true)
             setOpenSidebar(false)
+            readNotify(notificationsJoins)
           }} 
           className="text-2xl relative"><BsBellFill /> 
-          {joins?.length !== 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{joins?.length}</div>}
+          {notificationsJoins.length > 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{notificationsJoins.length}</div>}
         </button>
       </div>
       <div className='flex flex-col items-center mt-3'>

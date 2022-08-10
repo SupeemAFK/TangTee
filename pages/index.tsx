@@ -35,7 +35,7 @@ const Home: NextPage = () => {
           animate="visible"
         >
           <AnimatePresence>
-            {posts?.map(post => <Post key={post.id} post={post} />)}
+            {posts?.map(post => post.isOpen && <Post key={post.id} post={post} />)}
           </AnimatePresence>
         </motion.div>
       </div>
