@@ -33,7 +33,7 @@ export default function Profile (props: IProfileProps) {
 
     useEffect(() => {
         if (user) {
-            onSnapshot(query(collection(db, "posts"), where("user_id", "==", user.id), orderBy("createdAt")), (snapshot => {
+            onSnapshot(query(collection(db, "posts"), where("user_id", "==", user.id), orderBy("createdAt", "desc")), (snapshot => {
                 const posts: IPost[] = snapshot.docs.map(doc => {
                     const data = doc.data()
                     return {

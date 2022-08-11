@@ -8,15 +8,24 @@ import { AiOutlineHome } from 'react-icons/ai'
 import MobileSidebar from './MobileSidebar'
 import Notify from './Notify'
 import { useJoin } from '../context/JoinContext';
+import { useRouter } from 'next/router'
 
 export interface INavbarProps {
 }
 
 export default function Navbar (props: INavbarProps) {
     const { currentUser, signout } = useAuth();
+    const [searchText, setSearchText] = useState<string>("");
     const [openSidebar, setOpenSidebar] = useState<boolean>(false);
     const [openNotify, setOpenNotify] = useState<boolean>(false);
     const { joins, notificationsJoins, readNotify } = useJoin();
+    const router = useRouter();
+
+    function handleSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        setSearchText("");
+        router.push(`/search?searchText=${searchText}`);
+    }
 
     return (
         <div className="py-2 px-5 h-16 bg-teal-400 flex items-center text-white fixed top-0 w-full z-20">
@@ -44,6 +53,13 @@ export default function Navbar (props: INavbarProps) {
                     </Link>
                 )}
             </div>
+            {currentUser && (
+                <div className="lg:flex-1">
+                    <form onSubmit={handleSearchSubmit}>
+                        <input onChange={(e) => setSearchText(e.target.value)} value={searchText} placeholder='Search' type="text" className="p-1 w-full border-[1px] border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200 text-black" />
+                    </form>
+                </div>
+            )}
             <div className='flex justify-end flex-1'>
                 {currentUser ? (
                     <div className="hidden md:flex items-center"> 
