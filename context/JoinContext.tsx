@@ -55,6 +55,15 @@ export default function Join ({ children }: IJoinProps) {
         }
     }, [currentUser])
 
+    useEffect(() => {
+        if (currentUser) {
+            const q = query(collection(db, "party"), where("participants", "array-contains", currentUser.id))
+            onSnapshot(q, snapshot => {
+                console.log("Author accept your join and create a party!")
+            })
+        }
+    }, [currentUser])
+
   return (
     <joinContext.Provider
         value={{

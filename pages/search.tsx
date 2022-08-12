@@ -19,7 +19,8 @@ export default function Search (props: ISearchProps) {
             setLoading(true);
             const q = query(collection(db, "posts"), 
                 orderBy("title"),
-                where("title", ">=", router.query.searchText.toString().toUpperCase(), "&&", "title", "<=", router.query.searchText.toString().toLowerCase() + '\uf8ff', "||", "(", "tags", "array-contains", router.query.searchText, ")"),
+                where("title", ">=", router.query.searchText.toString().toUpperCase(),),
+                where("title", "<=", router.query.searchText.toString().toLowerCase() + '\uf8ff'),
                 where("isOpen", "==", true),
             )
             getDocs(q)

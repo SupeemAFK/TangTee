@@ -36,7 +36,7 @@ export default function AddPost (props: IAddPostProps) {
 
   function handleOnChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
     const name: string = e.target.name
-    const value: string = e.target.value
+    const value: string | number = name === "max_participants" ? parseInt(e.target.value) : e.target.value;
     setPostForm({ ...postForm, [name]: value })
   }
 

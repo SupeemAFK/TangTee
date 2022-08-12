@@ -26,7 +26,7 @@ export default function Navbar (props: INavbarProps) {
         setSearchText("");
         router.push(`/search?searchText=${searchText}`);
     }
-
+    
     return (
         <div className="py-2 px-5 h-16 bg-teal-400 flex items-center text-white fixed top-0 w-full z-20">
             <div className="flex items-center flex-1">

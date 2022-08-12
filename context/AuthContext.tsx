@@ -14,16 +14,19 @@ interface IContext {
     signinFacebook: () => void
     signout: () => void
     currentUser: IUser | null
+    loading: boolean
 }
 
 const authContext = React.createContext({} as IContext);
 
 export default function AuthContext ({ children }: IAuthContextProps) {
+    const [loading, setLoading] = useState<boolean>(true);
     const [currentUser, setCurrentUser] = useState<IUser | null>(null);
     const router = useRouter();
 
     useEffect(() => {
         onAuthStateChanged(auth, async (result) => {
+            setLoading(true);
             if (result) {
                 const docSnap: DocumentSnapshot = await getDoc(doc(db, "users", result.uid));
                 const user: DocumentData | undefined = docSnap.data();
@@ -35,9 +38,11 @@ export default function AuthContext ({ children }: IAuthContextProps) {
                     stars: user?.stars,
                     status: user?.status,
                 });
+                setLoading(false);
             }
             else {
                 setCurrentUser(null)
+                setLoading(false);
             }
         })
     }, [])
@@ -89,7 +94,8 @@ export default function AuthContext ({ children }: IAuthContextProps) {
             value={{ 
                 signinFacebook, 
                 signout,
-                currentUser 
+                currentUser,
+                loading
             } as IContext}
         >
             {children}

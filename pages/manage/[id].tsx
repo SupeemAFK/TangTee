@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { BiImageAdd } from 'react-icons/bi'
 import { BsCheckCircle } from 'react-icons/bs'
 import IImage from '../../interface/img';
-import { doc, updateDoc, getDoc, DocumentData } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, DocumentData, addDoc, collection } from 'firebase/firestore';
 import { FirebaseStorage, StorageReference, UploadResult, uploadBytes, getDownloadURL, ref, getStorage } from 'firebase/storage';
 import { db } from '../../lib/firebase'
 import IPost from '../../interface/post'
@@ -31,23 +31,24 @@ interface IEditPostForm {
 export default function Edit (props: IEditProps) {
     const [requestUsers, setRequestUsers] = useState<IUser[]>([]);
     const [editPostForm, setEditPostForm] = useState<IEditPostForm>({ title: "", details: "", max_participants: 0, img: { url: "", file: {} as File }, tags: "", isOpen: false });
-    const [checkUsers, setCheckUsers] = useState<IUser[]>([])
     const router = useRouter();
     const { id } = router.query;
     const { post, loading } = useGetPost(id as string);
     const { posts, setPosts } = usePostsContext();
     const { joins } = useJoin();
-    const { currentUser } = useAuth()
+    const { currentUser, loading: userLoading } = useAuth()
 
     useEffect(() => {
-        post && setEditPostForm({
-            title: post.title,
-            details: post.details,
-            max_participants: post.max_participants,
-            img: { url: post.img, file: {} as File },
-            tags: post.tags.join(" "),
-            isOpen: post.isOpen
-        })
+        if (post) {
+            setEditPostForm({
+                title: post.title,
+                details: post.details,
+                max_participants: post.max_participants,
+                img: { url: post.img, file: {} as File },
+                tags: post.tags.join(" "),
+                isOpen: post.isOpen,
+            })
+        }
     }, [post])
 
     useEffect(() => {
@@ -63,14 +64,19 @@ export default function Edit (props: IEditProps) {
     }, [loading])
 
     useEffect(() => {
-        if (currentUser) {
-            if (currentUser?.id === post?.user?.id) {
+        if (!userLoading) {
+            if (currentUser) {
+                if (post) {
+                    if (currentUser.id !== post.user?.id) {
+                        router.push('/404')
+                    }
+                }
+            } 
+            else {
                 router.push('/404')
             }
-        } else {
-            router.push('/404')
         }
-    }, [currentUser])
+    }, [currentUser, post, userLoading])
 
     async function editPost(): Promise<void> {
         let imgUrl = post?.img;
@@ -114,19 +120,36 @@ export default function Edit (props: IEditProps) {
             })
     }
 
+    async function createParty() {
+        if (post){
+            const snapshot = await addDoc(collection(db, "party"), {
+                messages: [],
+                participants: [currentUser?.id, ...post.participants],
+                post_id: post.id
+            })
+            router.push(`/contact/${snapshot.id}`)
+        }
+    }
+
     function handleOnChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
         const name = e.target.name;
-        const value = e.target.value;
+        const value: string | number = name === "max_participants" ? parseInt(e.target.value) : e.target.value;
         setEditPostForm({ ...editPostForm, [name]: value })
     }
 
-    function handleCheckboxChange(user: IUser) {
-        const alreadyInCheckList = checkUsers.find(checkUser => checkUser.id === user.id)
-        if (alreadyInCheckList) {
-            const filterUser = checkUsers.filter(checkUser => checkUser.id !== user.id)
-            setCheckUsers(filterUser);
-        } else {
-            setCheckUsers([...checkUsers, user]);
+    function handleCheckboxChange(userId: string) {
+        if (post) {
+            const alreadyChecked = post.participants.includes(userId);
+            if (alreadyChecked) {
+                const filter = post.participants.filter(participantId => participantId !== userId);
+                post && updateDoc(doc(db, "posts", post.id), {
+                    participants: filter
+                })
+            } else {
+                post && updateDoc(doc(db, "posts", post.id), {
+                    participants: [...post.participants, userId]
+                })
+            }
         }
     }
 
@@ -134,7 +157,7 @@ export default function Edit (props: IEditProps) {
         const file: File | null | undefined = e.target.files?.item(0)
         file && setEditPostForm({ ...editPostForm, img: { file: file, url: URL.createObjectURL(file) } })  
     }
-  
+
     if (loading || !post) {
         return (
             <div className="mt-16 p-5 flex flex-col items-center text-teal-400">
@@ -188,7 +211,7 @@ export default function Edit (props: IEditProps) {
                         </div>
                         <div className="mt-3">
                             <label>Max Participants</label>
-                            <input type="number" name="max_participants" onChange={handleOnChange} min="1" max="12" defaultValue="1" className="w-10 ml-2 border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" placeholder="Max" />
+                            <input type="number" name="max_participants" onChange={handleOnChange} min="1" max="12" defaultValue={post.max_participants} className="w-10 ml-2 border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" placeholder="Max" />
                         </div>
                         <div className="flex flex-col mt-3">
                             <label>Status</label>
@@ -217,7 +240,7 @@ export default function Edit (props: IEditProps) {
                 </div>
                 <div className="p-2 flex flex-col items-center flex-1">
                     <h1 className="mb-5 text-3xl font-medium text-teal-400">Manage User</h1>
-                    <h1>{checkUsers.length}/{post.max_participants}</h1>
+                    <h1>{post.participants.length}/{post.max_participants}</h1>
                     <div className="border-2 border-teal-400 rounded max-h-96 p-3 overflow-auto scrollbar">
                         {requestUsers.map(user => (
                             <div key={user.id} className="flex items-center mt-5">
@@ -228,11 +251,22 @@ export default function Edit (props: IEditProps) {
                                     <p className="ml-1">{user.name}</p> 
                                 </div>
                                 <div className="ml-2 flex items-center">
-                                    <input type="checkbox" onChange={() => handleCheckboxChange(user)} className="appearance-none w-5 h-5 rounded-md border-2 text-white focus:outline-none checked:bg-teal-400 checked:border-teal-400 transition-all duration-100" disabled={checkUsers.find(checkUser => checkUser.id !== user.id) && checkUsers.length >= post.max_participants} />
+                                    <input 
+                                        type="checkbox" 
+                                        onChange={() => handleCheckboxChange(user.id)} 
+                                        className="appearance-none w-5 h-5 rounded-md border-2 text-white focus:outline-none checked:bg-teal-400 checked:border-teal-400 transition-all duration-100 cursor-pointer" 
+                                        checked={post.participants.includes(user.id)}
+                                        disabled={!post.participants.includes(user.id) && post.participants.length >= post.max_participants}
+                                    />
                                 </div>
                             </div>
                         ))}
                     </div>
+                    {post.participants.length === post.max_participants && (
+                        <div className='mt-5'>
+                            <button onClick={createParty} className='border-2 border-teal-400 rounded p-2 text-teal-400 hover:bg-teal-400 hover:text-white transition-all duration-300'>Create Party 🎉</button>
+                        </div>
+                    )}
                 </div>
             </motion.div>
         </>
