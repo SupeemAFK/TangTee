@@ -2,13 +2,14 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import IJoin from '../interface/join'
+import IParty from '../interface/party'
 
 export interface INotifyProps {
-    joins: IJoin[]
+    joinsAndParties: (IJoin | IParty)[]
     setOpenNotify: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function Notify ({ joins, setOpenNotify }: INotifyProps) {
+export default function Notify ({ joinsAndParties, setOpenNotify }: INotifyProps) {
     
     function close() {
         setOpenNotify(false);
@@ -24,19 +25,32 @@ export default function Notify ({ joins, setOpenNotify }: INotifyProps) {
             <div className="p-2">
                 <h1 className="text-xl">Notifications</h1>
                 <div className="p-[0.01rem] bg-[#e6e6e6] my-2"></div> 
-                {joins.length > 0 ? (
+                {joinsAndParties.length > 0 ? (
                     <div>
-                        {joins.map(join => (
-                            <Link key={join.id} href={`/manage/${join.post.id}`}>
-                                <div onClick={close}className="flex mt-2 p-2 items-center cursor-pointer rounded border-[1px] border-[#e6e6e6] hover:border-teal-400 w-96">
-                                    <div className='w-10 h-10 rounded-full overflow-hidden'>
-                                        <img className="w-full object-cover" src={join.from_user.avatar} alt={join.from_user.name} />
+                        {joinsAndParties.map(joinAndParty => (
+                            isIJoin(joinAndParty) ? (
+                                <Link key={joinAndParty.id} href={`/manage/${joinAndParty.post.id}`}>
+                                    <div onClick={close}className="flex mt-2 p-2 items-center cursor-pointer rounded border-[1px] border-[#e6e6e6] hover:border-teal-400 w-96">
+                                        <div className='w-10 h-10 rounded-full overflow-hidden'>
+                                            <img className="w-full object-cover" src={joinAndParty.from_user.avatar} alt={joinAndParty.from_user.name} />
+                                        </div>
+                                        <div className="ml-2 flex-1">
+                                            <h1 className="font-medium">{joinAndParty.from_user.name} <span className='font-normal'>want to join your <span className="font-medium">{joinAndParty.post.title}</span> party</span></h1>
+                                        </div>
                                     </div>
-                                    <div className="ml-2 flex-1">
-                                        <h1 className="font-medium">{join.from_user.name} <span className='font-normal'>want to join your <span className="font-medium">{join.post.title}</span> party</span></h1>
+                                </Link>
+                            ) : (
+                                <Link key={joinAndParty.id} href={`/contact/${joinAndParty.id}`}>
+                                    <div onClick={close}className="flex mt-2 p-2 items-center cursor-pointer rounded border-[1px] border-[#e6e6e6] hover:border-teal-400 w-96">
+                                        <div className='w-10 h-10 rounded-full overflow-hidden'>
+                                            <img className="w-full object-cover" src={joinAndParty.author.avatar} alt={joinAndParty.author.name} />
+                                        </div>
+                                        <div className="ml-2 flex-1">
+                                            <h1 className="font-medium">Author has accept your request!</h1>
+                                        </div>
                                     </div>
-                                </div>
-                            </Link>
+                                </Link>
+                            )
                         ))}
                     </div>
                 ) : (
@@ -51,4 +65,8 @@ export default function Notify ({ joins, setOpenNotify }: INotifyProps) {
         </div> 
         </>
   );
+}
+
+function isIJoin(obj: any): obj is IJoin {
+    return 'id' in obj && 'isRead' in obj && 'from_user' in obj && 'post' in obj && 'timestamp' in obj;
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import IJoin from '../interface/join'
+import IParty from '../interface/party'
 import IUser from '../interface/user';
 import { BsBellFill } from 'react-icons/bs'
 import { HiDocumentAdd } from 'react-icons/hi'
@@ -13,10 +14,12 @@ export interface IMobileSidebarProps {
     signout: () => void
     joins: IJoin[]
     notificationsJoins: IJoin[]
-    readNotify: (unreadNotify: IJoin[]) => void
+    notificationsParties: IParty[]
+    readNotifyJoin: (unreadNotify: IJoin[]) => void
+    readNotifyParty: (unreadNotifyParty: IParty[]) => void
 }
 
-export default function MobileSidebar ({ openSidebar, setOpenSidebar, currentUser, signout, joins, notificationsJoins, readNotify }: IMobileSidebarProps) {
+export default function MobileSidebar ({ openSidebar, setOpenSidebar, currentUser, signout, joins, notificationsJoins, notificationsParties, readNotifyJoin, readNotifyParty }: IMobileSidebarProps) {
   const [openMobileNotify, setOpenMobileNotify] = useState<boolean>(false);
 
   return (
@@ -36,7 +39,8 @@ export default function MobileSidebar ({ openSidebar, setOpenSidebar, currentUse
           onClick={() => {
             setOpenMobileNotify(true)
             setOpenSidebar(false)
-            readNotify(notificationsJoins)
+            readNotifyJoin(notificationsJoins)
+            readNotifyParty(notificationsParties)
           }} 
           className="text-2xl relative"><BsBellFill /> 
           {notificationsJoins.length > 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{notificationsJoins.length}</div>}

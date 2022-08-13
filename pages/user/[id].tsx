@@ -44,7 +44,7 @@ export default function Profile (props: IProfileProps) {
                         user,
                         max_participants: data?.max_participants,
                         tags: data?.tags,
-                        isOpen: data?.isOpen,
+                        status: data?.status,
                         participants: data?.participants,
                         createdAt: new Date(data?.createdAt * 1000)
                     }
@@ -135,7 +135,7 @@ export default function Profile (props: IProfileProps) {
                         </div>
                     </div>
                 </div>
-                <div>
+                <div className='my-5'>
                     {userPosts.map(post => <Post key={post.id} post={post} />)}
                 </div>
             </div>

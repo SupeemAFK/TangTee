@@ -16,7 +16,7 @@ interface IContext {
     joins: IJoin[]
     setJoins: React.Dispatch<React.SetStateAction<IJoin[]>>
     notificationsJoins: IJoin[]
-    readNotify: (unreadNotify: IJoin[]) => void
+    readNotifyJoin: (unreadNotify: IJoin[]) => void
 }
 
 const joinContext = React.createContext({} as IContext);
@@ -26,7 +26,7 @@ export default function Join ({ children }: IJoinProps) {
     const [notificationsJoins, setNotificationsJoins] = useState<IJoin[]>([]);
     const { currentUser } = useAuth();
 
-    function readNotify(unreadNotify: IJoin[]) {
+    function readNotifyJoin(unreadNotify: IJoin[]) {
         unreadNotify.map(async join => {
             await updateDoc(doc(db, "join", join.id), { isRead: true });
         })
@@ -45,21 +45,13 @@ export default function Join ({ children }: IJoinProps) {
                         id: doc.id,
                         isRead: data?.isRead,
                         from_user: fromUser,
-                        post
+                        post,
+                        timestamp: data.timestamp
                     }     
                 }))
                 const notificationsJoins: IJoin[] = joins.filter(join => join.isRead === false);
                 setJoins(joins);
                 setNotificationsJoins(notificationsJoins);
-            })
-        }
-    }, [currentUser])
-
-    useEffect(() => {
-        if (currentUser) {
-            const q = query(collection(db, "party"), where("participants", "array-contains", currentUser.id))
-            onSnapshot(q, snapshot => {
-                console.log("Author accept your join and create a party!")
             })
         }
     }, [currentUser])
@@ -70,7 +62,7 @@ export default function Join ({ children }: IJoinProps) {
             joins,
             setJoins,
             notificationsJoins,
-            readNotify
+            readNotifyJoin
         } as IContext}
     >
         {children}

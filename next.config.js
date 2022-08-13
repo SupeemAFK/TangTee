@@ -9,7 +9,11 @@ const nextConfig = {
         source: '/(.*)?',
         headers: [{
           key: 'X-Frame-Options',
-          value: 'ALLOW-FROM',
+          value: 'ALLOW-FROM http://localhost:3000/',
+        }, 
+        { 
+          key: "Access-Control-Allow-Origin", 
+          value: "http://localhost:3000" 
         }],
       },
     ]

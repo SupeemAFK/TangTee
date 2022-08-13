@@ -107,11 +107,11 @@ export default function Post ({ post }: IPostProps) {
 
         <div className='flex justify-between items-center p-3 text-xs lg:text-base'>
           <div>
-            <p>Status : <span className={`${post.isOpen ? "text-green-500" : "text-red-500"}`}>{post.isOpen ? "Open" : "Closed"}</span></p>
+            <p>Status : <span className={`${post.status === "Open" ? "text-green-500" : post.status === "Closed" ? "text-red-500" : "text-yellow-500"}`}>{post.status.charAt(0).toUpperCase() + post.status.slice(1)}</span></p>
           </div>
           <div>
             <Link href={`/view/${post.id}`}><button className="bg-teal-400 py-1 px-5 text-white rounded-xl">View</button></Link>
-            {(currentUser && post.user?.id !== currentUser?.id && post.isOpen) && (
+            {(currentUser && post.user?.id !== currentUser?.id && post.status === "Open") && (
               <>
               {isAlreadyJoined.alreadyJoined ? (
                 <button onClick={handleCancel} className="bg-red-400 py-1 px-3 text-white rounded-xl ml-2">Cancel</button>

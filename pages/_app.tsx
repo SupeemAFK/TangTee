@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import AuthContext from '../context/AuthContext'
 import PostContext from '../context/PostContext'
 import JoinContext from '../context/JoinContext'
+import PartyContext from '../context/PartyContext'
 import Navbar from '../components/Navbar';
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -24,9 +25,11 @@ function MyApp({ Component, pageProps }: AppProps) {
     <AuthContext>
       <PostContext>
         <JoinContext>
-          <Navbar />
-          <ToastContainer />
-          <Component {...pageProps} />  
+          <PartyContext>
+            <Navbar />
+            <ToastContainer />
+            <Component {...pageProps} /> 
+          </PartyContext> 
         </JoinContext>
       </PostContext>  
     </AuthContext>

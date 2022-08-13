@@ -18,7 +18,7 @@ export interface IContactProps {
 export default function Contact (props: IContactProps) {
   const [message, setMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
-  const [party, setParty] = useState<IParty>({} as IParty);
+  const [party, setParty] = useState<IParty | null>(null);
   const { currentUser } = useAuth()
   const router = useRouter();
   const { id } = router.query
@@ -37,17 +37,27 @@ export default function Contact (props: IContactProps) {
             }
           }))
           const participants: IUser[] = await Promise.all(data?.participants.map(async (userId: string) => await getUser(userId)))
+          const author = await getUser(data?.author_id)
           setParty({
             id: snapshot.id,
             messages,
             participants,
-            post_id: data?.post_id
+            author,
+            post_id: data?.post_id,
+            isRead: data.isRead,
+            timestamp: data.timestamp
           })
-          setLoading(false);
         }
+        setLoading(false);
       })
     }
   }, [id])
+
+  useEffect(() => {
+    if (!loading && !party) {
+      router.push('/404')
+    }
+  }, [loading])
 
   useEffect(() => {
     if (!loading) {
@@ -63,7 +73,9 @@ export default function Contact (props: IContactProps) {
     }
   }, [party, currentUser])
 
-  async function sendMessage() {
+  async function sendMessage(e: React.FormEvent) {
+    e.preventDefault()
+
     if(id) {
       const messageObj = {
         id: uuidv4(),
@@ -117,10 +129,10 @@ export default function Contact (props: IContactProps) {
             </div>
           ))}
       </div>
-      <div className="bg-teal-400 fixed bottom-0 right-0 w-[calc(100%-13rem)] h-28 p-5 flex items-center">
+      <form onSubmit={sendMessage} className="bg-teal-400 fixed bottom-0 right-0 w-[calc(100%-13rem)] h-28 p-5 flex items-center">
         <input onChange={e => setMessage(e.target.value)} value={message} placeholder='Exchange contact with your friends' type="text" name="title" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
-        <button onClick={sendMessage}className="bg-white text-teal-400 rounded p-2 ml-3 flex items-center">Send <FiSend className='ml-1' /></button>
-      </div>
+        <button type="submit"className="bg-white text-teal-400 rounded p-2 ml-3 flex items-center">Send <FiSend className='ml-1' /></button>
+      </form>
     </div>
   );
 }

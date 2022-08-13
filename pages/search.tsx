@@ -36,7 +36,7 @@ export default function Search (props: ISearchProps) {
                         user,
                         max_participants: data?.max_participants,
                         tags: data?.tags,
-                        isOpen: data?.isOpen,
+                        status: data?.status,
                         participants: data?.participants,
                         createdAt: new Date(data?.createdAt * 1000)
                     }

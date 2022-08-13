@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { BiImageAdd } from 'react-icons/bi'
 import { BsCheckCircle } from 'react-icons/bs'
 import IImage from '../../interface/img';
-import { doc, updateDoc, getDoc, DocumentData, addDoc, collection } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, DocumentData, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { FirebaseStorage, StorageReference, UploadResult, uploadBytes, getDownloadURL, ref, getStorage } from 'firebase/storage';
 import { db } from '../../lib/firebase'
 import IPost from '../../interface/post'
@@ -25,12 +25,12 @@ interface IEditPostForm {
     max_participants: number
     img: IImage
     tags: string
-    isOpen: boolean
+    status: string
 }
 
 export default function Edit (props: IEditProps) {
     const [requestUsers, setRequestUsers] = useState<IUser[]>([]);
-    const [editPostForm, setEditPostForm] = useState<IEditPostForm>({ title: "", details: "", max_participants: 0, img: { url: "", file: {} as File }, tags: "", isOpen: false });
+    const [editPostForm, setEditPostForm] = useState<IEditPostForm>({ title: "", details: "", max_participants: 0, img: { url: "", file: {} as File }, tags: "", status: "" });
     const router = useRouter();
     const { id } = router.query;
     const { post, loading } = useGetPost(id as string);
@@ -46,7 +46,7 @@ export default function Edit (props: IEditProps) {
                 max_participants: post.max_participants,
                 img: { url: post.img, file: {} as File },
                 tags: post.tags.join(" "),
-                isOpen: post.isOpen,
+                status: post.status,
             })
         }
     }, [post])
@@ -100,7 +100,7 @@ export default function Edit (props: IEditProps) {
                         img: data.img,
                         max_participants: data.max_participants,
                         tags: data.tags,
-                        isOpen: data.isOpen,
+                        status: data.status,
                         user: post.user,
                         participants: post.participants,
                         createdAt: post.createdAt,
@@ -125,8 +125,12 @@ export default function Edit (props: IEditProps) {
             const snapshot = await addDoc(collection(db, "party"), {
                 messages: [],
                 participants: [currentUser?.id, ...post.participants],
-                post_id: post.id
+                post_id: post.id,
+                author: currentUser?.id,
+                isRead: false,
+                timestamp: serverTimestamp()
             })
+            await updateDoc(doc(db, "posts", post.id), { status: "Completed" })
             router.push(`/contact/${snapshot.id}`)
         }
     }
@@ -219,17 +223,17 @@ export default function Edit (props: IEditProps) {
                                 <input
                                     type="checkbox"
                                     className="sr-only peer"
-                                    checked={editPostForm.isOpen}
+                                    checked={editPostForm.status === "Open"}
                                     readOnly
                                 />
                                 <div
                                     onClick={() => {
-                                        setEditPostForm({ ...editPostForm, isOpen: !editPostForm.isOpen });
+                                        setEditPostForm({ ...editPostForm, status: editPostForm.status === "Open" ? "Closed" : "Open" });
                                     }}
                                     className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-teal-400  peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-400"
                                 ></div>
                                 <span className="ml-2 text-sm font-medium text-gray-900 flex items-center">
-                                    {editPostForm.isOpen ? "Open" : "Closed"}
+                                    {editPostForm.status.charAt(0).toUpperCase() + editPostForm.status.slice(1)}
                                 </span>
                             </label>
                         </div>

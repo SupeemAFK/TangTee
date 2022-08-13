@@ -40,7 +40,7 @@ export default function PostContext ({ children }: IPostContextProps) {
                         user,
                         max_participants: data?.max_participants,
                         tags: data?.tags,
-                        isOpen: data?.isOpen,
+                        status: data?.status,
                         participants: data?.participants,
                         createdAt: new Date(data?.createdAt * 1000)
                     }
@@ -68,7 +68,7 @@ export default function PostContext ({ children }: IPostContextProps) {
                         user,
                         max_participants: data?.max_participants,
                         tags: data?.tags,
-                        isOpen: data?.isOpen,
+                        status: data?.status,
                         participants: data?.participants,
                         createdAt: new Date(data?.createdAt * 1000)
                     }

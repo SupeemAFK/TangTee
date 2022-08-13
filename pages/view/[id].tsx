@@ -86,7 +86,7 @@ export default function PostDetail (props: IPostDetailProps) {
                             </div>
                         )}
                     </div>
-                    {(currentUser && post.user?.id !== currentUser?.id && post.isOpen) && (
+                    {(currentUser && post.user?.id !== currentUser?.id && post.status === "Open") && (
                         <>
                         {isAlreadyJoined.alreadyJoined ? (
                             <button onClick={handleCancel} className="bg-red-400 py-1 px-3 text-white rounded-xl ml-2">Cancel</button>
@@ -96,7 +96,7 @@ export default function PostDetail (props: IPostDetailProps) {
                     )}
                 </div>
                 <div className="w-full md:w-1/2 mt-5">
-                    <p>Status : <span className={`${post.isOpen ? "text-green-500" : "text-red-500"}`}>{post.isOpen ? "Open" : "Closed"}</span></p>
+                    <p>Status : <span className={`${post.status === "Open" ? "text-green-500" : "text-red-500"}`}>{post.status === "Open" ? "Open" : "Closed"}</span></p>
                 </div>
                 <div className="w-full md:w-1/2 mt-5">
                     <p>{post.details}</p>

@@ -1,5 +1,5 @@
 import { db } from "../lib/firebase"
-import { collection, addDoc, deleteDoc, doc, getDoc } from 'firebase/firestore'
+import { collection, addDoc, deleteDoc, doc, getDoc, serverTimestamp } from 'firebase/firestore'
 import IPost from "../interface/post"
 import IUser from '../interface/user'
 
@@ -11,7 +11,8 @@ export async function join(post: IPost, currentUser: IUser): Promise<string> {
             isRead: false,
             post_id: post.id,
             from_user_id: currentUser?.id,
-            to_user_id: post.user?.id
+            to_user_id: post.user?.id,
+            timestamp: serverTimestamp()
         })
         return newDoc.id
     }

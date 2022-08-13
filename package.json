@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@dhaiwat10/react-link-preview": "^1.14.2",
     "@types/uuid": "^8.3.4",
     "emoji-picker-react": "^3.5.1",
     "firebase": "^9.9.0",
