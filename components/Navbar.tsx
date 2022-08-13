@@ -101,7 +101,7 @@ export default function Navbar (props: INavbarProps) {
             </div>
             {currentUser && (
                 <div onClick={() => setOpenSidebar(!openSidebar)} className="flex items-center md:hidden relative cursor-pointer">
-                    {notificationsJoins?.length > 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{notificationsJoins.length}</div>}
+                    {(notificationsJoins.length > 0 || notificationsParties.length > 0) && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{notificationsJoins?.length + notificationsParties.length}</div>}
                     <button className='text-2xl'><GiHamburgerMenu /></button>
                 </div>
             )}
@@ -110,7 +110,7 @@ export default function Navbar (props: INavbarProps) {
                 setOpenSidebar={setOpenSidebar} 
                 signout={signout} 
                 currentUser={currentUser} 
-                joins={joins}
+                joinsAndParties={joinsAndParties}
                 notificationsJoins={notificationsJoins}
                 notificationsParties={notificationsParties}
                 readNotifyJoin={readNotifyJoin}

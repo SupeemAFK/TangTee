@@ -66,7 +66,7 @@ export default function PostDetail (props: IPostDetailProps) {
                     hidden: { y: -100, opacity: 0 },
                     visible: { y: 0, opacity: 1, },
                 }}
-                className="mt-16 p-5 flex flex-col items-center"
+                className="mt-16 p-5 lg:py-10 flex flex-col items-center"
             >
                 {post?.img && (
                     <div className="w-full md:w-1/2">
@@ -96,7 +96,7 @@ export default function PostDetail (props: IPostDetailProps) {
                     )}
                 </div>
                 <div className="w-full md:w-1/2 mt-5">
-                    <p>Status : <span className={`${post.status === "Open" ? "text-green-500" : "text-red-500"}`}>{post.status === "Open" ? "Open" : "Closed"}</span></p>
+                    <p>Status : <span className={`${post.status === "Open" ? "text-green-500" : post.status === "Closed" ? "text-red-500" : "text-yellow-500"}`}>{post.status.charAt(0).toUpperCase() + post.status.slice(1)}</span></p>
                 </div>
                 <div className="w-full md:w-1/2 mt-5">
                     <p>{post.details}</p>

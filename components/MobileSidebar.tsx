@@ -12,14 +12,14 @@ export interface IMobileSidebarProps {
     setOpenSidebar: React.Dispatch<React.SetStateAction<boolean>>
     currentUser: IUser | null
     signout: () => void
-    joins: IJoin[]
+    joinsAndParties: (IJoin | IParty)[]
     notificationsJoins: IJoin[]
     notificationsParties: IParty[]
     readNotifyJoin: (unreadNotify: IJoin[]) => void
     readNotifyParty: (unreadNotifyParty: IParty[]) => void
 }
 
-export default function MobileSidebar ({ openSidebar, setOpenSidebar, currentUser, signout, joins, notificationsJoins, notificationsParties, readNotifyJoin, readNotifyParty }: IMobileSidebarProps) {
+export default function MobileSidebar ({ openSidebar, setOpenSidebar, currentUser, signout, joinsAndParties, notificationsJoins, notificationsParties, readNotifyJoin, readNotifyParty }: IMobileSidebarProps) {
   const [openMobileNotify, setOpenMobileNotify] = useState<boolean>(false);
 
   return (
@@ -34,7 +34,7 @@ export default function MobileSidebar ({ openSidebar, setOpenSidebar, currentUse
       </div>
       <div className="p-[0.01rem] bg-white my-3"></div>
       <div className='flex flex-col items-center'>
-        {openMobileNotify && <MobileNotify joins={joins} setOpenMobileNotify={setOpenMobileNotify} />}
+        {openMobileNotify && <MobileNotify joinsAndParties={joinsAndParties} setOpenMobileNotify={setOpenMobileNotify} />}
         <button 
           onClick={() => {
             setOpenMobileNotify(true)
@@ -43,7 +43,7 @@ export default function MobileSidebar ({ openSidebar, setOpenSidebar, currentUse
             readNotifyParty(notificationsParties)
           }} 
           className="text-2xl relative"><BsBellFill /> 
-          {notificationsJoins.length > 0 && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{notificationsJoins.length}</div>}
+          {(notificationsJoins.length > 0 || notificationsParties.length > 0) && <div className="bg-red-500 text-white flex justify-center items-center absolute top-0 right-0 rounded-full w-3 h-3 p-2 text-xs">{notificationsJoins?.length + notificationsParties.length}</div>}
         </button>
       </div>
       <div className='flex flex-col items-center mt-3'>

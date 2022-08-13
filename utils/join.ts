@@ -6,7 +6,7 @@ import IUser from '../interface/user'
 export async function join(post: IPost, currentUser: IUser): Promise<string> {
     const postSnap = await getDoc(doc(db, "posts", post.id))
     const postData = postSnap.data()
-    if (postData?.isOpen) {
+    if (postData?.status === "Open") {
         const newDoc = await addDoc(collection(db, "join"), {
             isRead: false,
             post_id: post.id,

@@ -126,7 +126,7 @@ export default function Edit (props: IEditProps) {
                 messages: [],
                 participants: [currentUser?.id, ...post.participants],
                 post_id: post.id,
-                author: currentUser?.id,
+                author_id: currentUser?.id,
                 isRead: false,
                 timestamp: serverTimestamp()
             })

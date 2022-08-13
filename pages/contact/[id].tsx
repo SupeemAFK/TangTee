@@ -103,9 +103,9 @@ export default function Contact (props: IContactProps) {
           </div>
         ))}
       </div>
-      <div className="w-[calc(100%-13rem)] h-[calc(100%-11rem)] px-5 py-1 fixed right-0 top-0 mt-16 overflow-auto scrollbar">
+      <div className="w-[calc(100%-13rem)] h-[calc(100%-7.5rem)] px-5 py-3 fixed right-0 top-0 mt-16 overflow-auto scrollbar">
           {party?.messages?.map(message => (
-            <div key={message.id} className="mt-2">
+            <div key={message.id} className="mt-4">
               <div className='flex items-center'>
                 <div className="w-12 h-12 rounded-full overflow-hidden">
                   <img className="w-full object-cover" src={message.user.avatar} alt={message.user.name} />
@@ -129,7 +129,7 @@ export default function Contact (props: IContactProps) {
             </div>
           ))}
       </div>
-      <form onSubmit={sendMessage} className="bg-teal-400 fixed bottom-0 right-0 w-[calc(100%-13rem)] h-28 p-5 flex items-center">
+      <form onSubmit={sendMessage} className="bg-teal-400 fixed bottom-0 right-0 w-[calc(100%-13rem)] h-14 p-5 flex items-center">
         <input onChange={e => setMessage(e.target.value)} value={message} placeholder='Exchange contact with your friends' type="text" name="title" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
         <button type="submit"className="bg-white text-teal-400 rounded p-2 ml-3 flex items-center">Send <FiSend className='ml-1' /></button>
       </form>

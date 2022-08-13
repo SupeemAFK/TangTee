@@ -54,7 +54,7 @@ export default function Notify ({ joinsAndParties, setOpenNotify }: INotifyProps
                         ))}
                     </div>
                 ) : (
-                    <h1>Don't have anything here</h1>
+                    <h1>Empty</h1>
                 )}
             </div>
         </motion.div>

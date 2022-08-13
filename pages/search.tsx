@@ -21,7 +21,7 @@ export default function Search (props: ISearchProps) {
                 orderBy("title"),
                 where("title", ">=", router.query.searchText.toString().toUpperCase(),),
                 where("title", "<=", router.query.searchText.toString().toLowerCase() + '\uf8ff'),
-                where("isOpen", "==", true),
+                where("status", "==", "Open"),
             )
             getDocs(q)
             .then(async snapshot => {
