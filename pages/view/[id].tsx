@@ -8,11 +8,13 @@ import { join, cancelJoin } from '../../utils/join'
 import { isAlreadyJoined } from '../../components/Post';
 import { query, collection, getDocs, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase'
+import Modal from '../../components/Modal'
 
 export interface IPostDetailProps {
 }
 
 export default function PostDetail (props: IPostDetailProps) {
+    const [openModal, setOpenModal] = useState<boolean>(false);
     const [isAlreadyJoined, setIsAlreadyJoined] = useState<isAlreadyJoined>({ alreadyJoined: false, join_id: "" });
     const router = useRouter();
     const { id } = router.query;
@@ -40,8 +42,10 @@ export default function PostDetail (props: IPostDetailProps) {
     }
  
     function handleCancel() {
-        cancelJoin(isAlreadyJoined.join_id)
-        setIsAlreadyJoined({ alreadyJoined: false, join_id: ""})
+        if (post && currentUser) {
+            cancelJoin(post, currentUser, isAlreadyJoined.join_id)
+            setIsAlreadyJoined({ alreadyJoined: false, join_id: ""})
+        }
     }
 
     if (loading || !post) {
@@ -59,6 +63,25 @@ export default function PostDetail (props: IPostDetailProps) {
 
     return (
         <>
+            {openModal && (
+                <Modal setOpenModal={setOpenModal} >
+                    <div className="p-5 flex flex-col items-center">
+                        <h1>Are you sure you want to <span className='font-semibold'>{isAlreadyJoined.alreadyJoined ? "Cancel" : "Join" }</span>?</h1>
+                        <div className="mt-2">
+                            <button onClick={() => setOpenModal(false)} className="rounded bg-red-400 text-white py-1 px-2">No</button>
+                            <button 
+                                onClick={() => {
+                                    isAlreadyJoined.alreadyJoined ? handleCancel() : handleJoin()
+                                    setOpenModal(false)
+                                }} 
+                                className="rounded bg-teal-400 text-white py-1 px-2 ml-2"
+                            >
+                                Yes
+                            </button>    
+                        </div>
+                    </div>
+                </Modal>
+            )}
             <motion.div 
                 initial="hidden"
                 animate="visible"
@@ -89,9 +112,9 @@ export default function PostDetail (props: IPostDetailProps) {
                     {(currentUser && post.user?.id !== currentUser?.id && post.status === "Open") && (
                         <>
                         {isAlreadyJoined.alreadyJoined ? (
-                            <button onClick={handleCancel} className="bg-red-400 py-1 px-3 text-white rounded-xl ml-2">Cancel</button>
+                            <button onClick={() => setOpenModal(true)} className="bg-red-400 py-1 px-3 text-white rounded-xl ml-2">Cancel</button>
                         ) : (
-                            <button onClick={handleJoin} className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>                        )}
+                            <button onClick={() => setOpenModal(true)} className="bg-teal-400 py-1 px-5 text-white rounded-xl ml-2">Join</button>                        )}
                         </>
                     )}
                 </div>

@@ -78,7 +78,7 @@ export default function Profile (props: IProfileProps) {
             className="min-w-screen min-h-screen mt-16 flex justify-center"
         >
             {openModal && (
-                <Modal>
+                <Modal setOpenModal={setOpenModal}>
                     {openColorPicker && (
                         <motion.div
                             initial={{ scale: 0, opacity: 0 }}
@@ -91,7 +91,7 @@ export default function Profile (props: IProfileProps) {
                             /> 
                         </motion.div>
                     )}
-                    <div className="w-96 flex flex-col items-center">
+                    <div className="flex flex-col items-center">
                         <div className='bg-slate-300 w-full flex justify-start items-center rounded-t-md p-1'>
                             <button onClick={() => setOpenModal(false)} className='rounded-full bg-slate-500 opacity-50 w-5 h-5 flex justify-center items-center p-1 text-white'>x</button> 
                         </div>

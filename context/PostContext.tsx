@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import IPost from '../interface/post'
-import { collection, getDocs, query, limit, orderBy, startAfter,QuerySnapshot, DocumentData } from 'firebase/firestore'
+import { collection, getDocs, query, limit, orderBy, startAfter,QuerySnapshot, DocumentData, onSnapshot } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { getUser } from '../hooks/useGetUser'
 
@@ -13,6 +13,11 @@ interface IContext {
     setPosts: React.Dispatch<React.SetStateAction<[] | IPost[]>>
     fetchMore: () => void
     hasMore: boolean
+}
+
+interface IParticipantsNumber {
+    post_id: string
+    participants: string[]
 }
 
 const postContext = React.createContext({} as IContext)
@@ -52,6 +57,25 @@ export default function PostContext ({ children }: IPostContextProps) {
              })
         }
     }
+
+    useEffect(() => {
+        onSnapshot(collection(db, "posts"), snapshot => {
+            const participants: IParticipantsNumber[] = snapshot.docs.map(doc => {
+                const data = doc.data()
+                return {
+                    post_id: doc.id,
+                    participants: data.participants
+                }
+            })
+            if (posts.length > 0) {
+                const updatePosts = posts.map(post => {
+                    const participantNumber = participants.find(participant => participant.post_id === post.id)
+                    return {...post, participants: participantNumber?.participants} as IPost
+                })
+                setPosts(updatePosts)
+            }
+        })
+    }, [posts])
 
     useEffect(() => {
         getDocs(query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(8)))

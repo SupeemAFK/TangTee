@@ -1,5 +1,5 @@
 import { db } from "../lib/firebase"
-import { collection, addDoc, deleteDoc, doc, getDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, deleteDoc, updateDoc, doc, getDoc, serverTimestamp } from 'firebase/firestore'
 import IPost from "../interface/post"
 import IUser from '../interface/user'
 
@@ -19,6 +19,11 @@ export async function join(post: IPost, currentUser: IUser): Promise<string> {
     return ""
 }
 
-export async function cancelJoin(join_id: string): Promise<void> {
+export async function cancelJoin(post: IPost, currentUser: IUser, join_id: string): Promise<void> {
     await deleteDoc(doc(db, "join", join_id))
+    const snapshot = await getDoc(doc(db, "posts", post.id));
+    const filterParticipants: string[] = snapshot.data()?.participants.filter((participantId: string) => participantId !== currentUser.id)
+    await updateDoc(doc(db, "posts", post.id), {
+        participants: filterParticipants
+    })
 }
