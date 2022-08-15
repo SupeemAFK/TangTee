@@ -46,7 +46,7 @@ export default function AddPost (props: IAddPostProps) {
   }
 
   async function AddPost(): Promise<void> {
-    if (postForm.title !== '' && postForm.details !== '' && postForm.tags) {
+    if (postForm.title !== '' && postForm.details !== '' && postForm.tags && (postForm.max_participants > 0 && postForm.max_participants !== NaN)) {
       setLoading(true);
       let imgUrl: string = "";
       const storage: FirebaseStorage = getStorage();
@@ -109,10 +109,8 @@ export default function AddPost (props: IAddPostProps) {
           <input placeholder='Your title to Tang Tee' onFocus={() => setFocusInputName("title")} onChange={handleOnChange} value={postForm.title} type="text" name="title" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
           <div className="p-[0.02rem] bg-teal-400 my-2 rounded-lg"></div>
           <textarea  placeholder='Write some details about your activities' onFocus={() => setFocusInputName("details")}  onChange={handleOnChange} value={postForm.details} name="details" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200 scrollbar" />
-          <div className="flex">
-            <input placeholder='Add your tags' onFocus={() => setFocusInputName("tags")}  onChange={handleOnChange} value={postForm.tags} type="text" name="tags" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
-            <input type="number" name="max_participants" onChange={handleOnChange} min="1" max="12" defaultValue="1" className="w-10 border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" placeholder="Max" />
-          </div>
+          <input placeholder='Add your tags' onFocus={() => setFocusInputName("tags")}  onChange={handleOnChange} value={postForm.tags} type="text" name="tags" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+          <input type="number" name="max_participants" onChange={handleOnChange} min="1" max="12" className="w-full mt-3 p-1 border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" placeholder="Max particaipants" />
           
           {postForm.tags !== "" && (
             <div className="mt-2 w-full flex overflow-auto">

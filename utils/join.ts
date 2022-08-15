@@ -20,10 +20,12 @@ export async function join(post: IPost, currentUser: IUser): Promise<string> {
 }
 
 export async function cancelJoin(post: IPost, currentUser: IUser, join_id: string): Promise<void> {
-    await deleteDoc(doc(db, "join", join_id))
-    const snapshot = await getDoc(doc(db, "posts", post.id));
-    const filterParticipants: string[] = snapshot.data()?.participants.filter((participantId: string) => participantId !== currentUser.id)
-    await updateDoc(doc(db, "posts", post.id), {
-        participants: filterParticipants
-    })
+    if (post.status === "Open") {
+        await deleteDoc(doc(db, "join", join_id))
+        const snapshot = await getDoc(doc(db, "posts", post.id));
+        const filterParticipants: string[] = snapshot.data()?.participants.filter((participantId: string) => participantId !== currentUser.id)
+        await updateDoc(doc(db, "posts", post.id), {
+            participants: filterParticipants
+        })
+    }
 }

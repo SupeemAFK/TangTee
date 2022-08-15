@@ -41,6 +41,6 @@ export async function getUser(id: string): Promise<IUser> {
     avatar: user?.avatar,
     bio: user?.bio,
     stars: user?.stars,
-    status: user?.status,
+    banner_hex: user?.banner_hex
   }
 }

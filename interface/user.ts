@@ -4,5 +4,5 @@ export default interface IUser {
     avatar: string
     bio: string
     stars: number
-    status: string
+    banner_hex: string
 }

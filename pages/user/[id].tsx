@@ -8,18 +8,28 @@ import { useRouter } from 'next/router';
 import { ChromePicker, ColorResult } from "react-color";
 import Modal from '../../components/Modal'
 import IPost from '../../interface/post'
-import { collection, getDocs, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import IImage from '../../interface/img'
+import { collection, query, where, orderBy, onSnapshot, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../lib/firebase'
 import Post from '../../components/Post'
+import { BiImageAdd } from 'react-icons/bi';
+import { FirebaseStorage, getStorage, StorageReference, ref, UploadResult, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export interface IProfileProps {
+}
+
+interface IEditProfileForm {
+    name: string
+    avatar: IImage
+    banner_hex: string
+    bio: string
 }
 
 export default function Profile (props: IProfileProps) {
     const [userPosts, setUserPosts] = useState<IPost[]>([]);
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [openColorPicker, setOpenColorPicker] = useState<boolean>(false);
-    const [colors, setColors] = useState<ColorResult>({ hex: "#0d9488" } as ColorResult);
+    const [editProfileForm, setEditProfileForm] = useState<IEditProfileForm>({ name: "", bio: "", avatar: { url: "", file: {} as File }, banner_hex: "#0d9488" });
     const { currentUser } = useAuth();
     const router = useRouter();
     const { id } = router.query
@@ -30,6 +40,10 @@ export default function Profile (props: IProfileProps) {
             router.push('/404')
         }
     }, [loading])
+
+    useEffect(() => {
+        user && setEditProfileForm({ name: user.name, bio: user.bio, avatar: { url: user.avatar, file: {} as File }, banner_hex: user.banner_hex })
+    }, [user])
 
     useEffect(() => {
         if (user) {
@@ -49,10 +63,38 @@ export default function Profile (props: IProfileProps) {
                         createdAt: new Date(data?.createdAt * 1000)
                     }
                 })
-                setUserPosts(posts)
+                currentUser?.id === user.id ? setUserPosts(posts) : setUserPosts(posts.filter(post => post.status === "Open"))
             }))
         }
     }, [user])
+
+    function handleOnChange(e: React.ChangeEvent<HTMLInputElement>) {
+        setEditProfileForm({ ...editProfileForm, [e.target.name]: e.target.value })
+    }
+
+    function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file: File | null | undefined = e.target.files?.item(0)
+        file && setEditProfileForm({ ...editProfileForm, avatar: { file: file, url: URL.createObjectURL(file) } })
+    }
+
+    async function updateProfile() {
+        let imgUrl = editProfileForm.avatar.url;
+
+        const storage: FirebaseStorage = getStorage();
+        const storageRef: StorageReference = ref(storage, editProfileForm.avatar.file.name);
+
+        if (editProfileForm.avatar.url !== user?.avatar) {
+            const snapshot: UploadResult = await uploadBytes(storageRef, editProfileForm.avatar.file)
+            imgUrl = await getDownloadURL(snapshot.ref) 
+        }
+
+       currentUser && updateDoc(doc(db, "users", currentUser.id), {
+            name: editProfileForm.name,
+            avatar: imgUrl,
+            banner_hex: editProfileForm.banner_hex,
+            bio: editProfileForm.bio,
+        })
+    }
 
     if (loading || !user) {
         return (
@@ -86,8 +128,8 @@ export default function Profile (props: IProfileProps) {
                             className="absolute z-10"
                         >
                            <ChromePicker
-                                color={colors.hex}
-                                onChange={color => setColors(color)}
+                                color={editProfileForm.banner_hex}
+                                onChange={color => setEditProfileForm({ ...editProfileForm, banner_hex: color.hex })}
                             /> 
                         </motion.div>
                     )}
@@ -95,26 +137,30 @@ export default function Profile (props: IProfileProps) {
                         <div className='bg-slate-300 w-full flex justify-start items-center rounded-t-md p-1'>
                             <button onClick={() => setOpenModal(false)} className='rounded-full bg-slate-500 opacity-50 w-5 h-5 flex justify-center items-center p-1 text-white'>x</button> 
                         </div>
-                        <div className="relative w-full h-44 flex flex-col justify-end" style={{ backgroundColor: colors.hex }}>
+                        <div className="relative w-full h-44 flex flex-col justify-end" style={{ backgroundColor: editProfileForm.banner_hex }}>
                             <button onClick={() => setOpenColorPicker(!openColorPicker)} className="absolute top-2 right-3 text-white"><VscSymbolColor /></button>
                             <div className="w-full flex justify-start relative mb-12">
                                 <div className="ml-5 w-20 h-20 rounded-full overflow-hidden absolute top-0 border-4 border-white">
-                                    <img className="w-full object-cover" src={user.avatar} alt="profile" />
+                                    <label className='absolute top-1 right-1 z-10 text-white text-xl mr-2 flex justify-center items-center cursor-pointer'>
+                                        <BiImageAdd />
+                                        <input onChange={handleFileChange} type="file" className="hidden" />
+                                    </label>
+                                    <img className="w-full object-cover brightness-75" src={editProfileForm.avatar.url} alt="profile" />
                                 </div>
                             </div>
                         </div>
                         <div className="w-full p-2 mt-7">
-                            <input placeholder="name" className="p-1 mt-2 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
-                            <input placeholder="bio" className="p-1 mt-2 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+                            <input onChange={handleOnChange} placeholder="name" name="name" value={editProfileForm.name} className="p-1 mt-2 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+                            <input onChange={handleOnChange} placeholder="bio" name="bio" value={editProfileForm.bio} className="p-1 mt-2 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
                         </div>
                         <div className="flex justify-end w-full mb-2 p-2">
-                            <button className="bg-teal-400 py-1 px-5 text-white rounded-xl">Done</button>
+                            <button onClick={updateProfile} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Done</button>
                         </div>
                     </div>
                 </Modal>
             )}
             <div className="w-full lg:w-1/2 flex flex-col items-center">
-                <div className="bg-teal-700 w-full h-44 flex flex-col justify-end">
+                <div className="w-full h-44 flex flex-col justify-end" style={{ backgroundColor: user.banner_hex }}>
                     <div className="w-full flex justify-start relative mb-12">
                         <div className="ml-5 w-28 h-28 rounded-full overflow-hidden absolute top-0 border-4 border-white">
                             <img className="w-full object-cover" src={user.avatar} alt="profile" />
@@ -122,11 +168,9 @@ export default function Profile (props: IProfileProps) {
                     </div>
                 </div>
                 <div className="border-[1px] border-[#e6e6e6] w-full">
-                    {user.id === currentUser?.id && (
-                        <div className="mt-5 mr-5 flex justify-end">
-                            <button onClick={() => setOpenModal(true)} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Edit</button>
+                        <div className={`${currentUser?.id === user.id ? "mt-5" : "mt-12"} mr-5 flex justify-end`}>
+                            {user.id === currentUser?.id && <button onClick={() => setOpenModal(true)} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Edit</button>}
                         </div>
-                    )}
                     <div className="my-7 ml-5">
                         <p className="font-bold text-lg">{user.name}</p>
                         <p>{user.bio}</p>

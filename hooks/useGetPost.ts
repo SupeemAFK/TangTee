@@ -25,7 +25,7 @@ export default function useGetPost(id: string): IUseGetPost {
                 avatar: userData?.avatar,
                 bio: userData?.bio,
                 stars: userData?.stars,
-                status: userData?.status,
+                banner_hex: userData?.banner_hex
             });
             
             if (data) {
@@ -64,7 +64,7 @@ export async function getPost(id: string): Promise<IPost> {
         avatar: userData?.avatar,
         bio: userData?.bio,
         stars: userData?.stars,
-        status: userData?.status,
+        banner_hex: userData?.banner_hex
     });
 
     return {

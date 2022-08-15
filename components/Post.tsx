@@ -5,6 +5,7 @@ import IPost from '../interface/post';
 import { BsThreeDots } from 'react-icons/bs';
 import { MdOutlineDelete } from 'react-icons/md'
 import { AiOutlineEdit } from 'react-icons/ai'
+import { GiPartyPopper } from 'react-icons/gi'
 import { db } from '../lib/firebase';
 import { deleteDoc, doc, query, collection, where, getDocs, onSnapshot } from "firebase/firestore"; 
 import { useAuth } from '../context/AuthContext'
@@ -23,6 +24,7 @@ export interface isAlreadyJoined {
 }
 
 export default function Post ({ post }: IPostProps) {
+  const [partyId, setPartyId] = useState<string | null>(null);
   const [isAlreadyJoined, setIsAlreadyJoined] = useState<isAlreadyJoined>({ alreadyJoined: false, join_id: "" });
   const [openMenu, setOpenMenu] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -63,6 +65,14 @@ export default function Post ({ post }: IPostProps) {
     }
   }, [post, currentUser])
 
+  useEffect(() => {
+    if (post && post.status === "Completed") {
+      const q = query(collection(db, "party"), where("post_id", "==", post.id))
+      getDocs(q)
+       .then(snapshot => snapshot.docs.map(doc => setPartyId(doc.id)))
+    }
+  }, [post])
+
   return (
     <motion.div 
       variants={{
@@ -97,14 +107,16 @@ export default function Post ({ post }: IPostProps) {
       )}
       <div className="p-3 flex items-center justify-between font-medium">
         <div className="flex item-center">
-          <div className="w-10 h-10 rounded-full overflow-hidden">
-            <img className="object-cover w-full" src={post?.user?.avatar} alt={post?.user?.name} />
-          </div>
+          <Link href={`/user/${post.user?.id}`}>
+            <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer">
+              <img className="object-cover w-full" src={post?.user?.avatar} alt={post?.user?.name} />
+            </div>
+          </Link>
           <p className="ml-2 flex items-center">{post?.user?.name.slice(0, 5)}...</p> 
         </div>
         <div className="relative">
           <div className="flex">
-            <p className='mr-1 text-sm'>{post.participants.length}/{post.max_participants}</p>
+            <p className='mr-1 text-sm'>{post?.participants ? post.participants.length : "Error"}/{post?.max_participants}</p>
             {currentUser?.id === post.user?.id && <button onClick={() => setOpenMenu(true)}><BsThreeDots /></button>}
           </div>
           {openMenu && (
@@ -114,6 +126,14 @@ export default function Post ({ post }: IPostProps) {
                 animate={{ y: 0, opacity: 1 }}
                 className="border-[1px] border-[#e6e6e6] bg-white rounded-md p-2 absolute right-0 z-50"
               >
+                {post.status === "Completed" && (
+                  <>
+                  <Link href={`/contact/${partyId}`}>
+                    <button className="text-yellow-400 flex items-center font-normal">Party <GiPartyPopper className="ml-1" /></button>
+                  </Link>
+                  <div className="p-[0.02rem] bg-[#e6e6e6] my-1"></div>
+                  </>
+                )}
                 <Link href={`/manage/${post.id}`}>
                   <button className="text-teal-400 flex items-center font-normal">Manage <AiOutlineEdit className="ml-1" /></button>
                 </Link>

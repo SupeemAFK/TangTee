@@ -8,13 +8,14 @@ import { motion } from 'framer-motion';
 import { BiImageAdd } from 'react-icons/bi'
 import { BsCheckCircle } from 'react-icons/bs'
 import IImage from '../../interface/img';
-import { doc, updateDoc, getDoc, DocumentData, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, DocumentData, addDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { FirebaseStorage, StorageReference, UploadResult, uploadBytes, getDownloadURL, ref, getStorage } from 'firebase/storage';
 import { db } from '../../lib/firebase'
 import IPost from '../../interface/post'
 import { usePostsContext } from '../../context/PostContext'
 import { toast } from 'react-toastify'
 import IUser from '../../interface/user';
+import Link from 'next/link'
 
 export interface IEditProps {
 }
@@ -29,6 +30,7 @@ interface IEditPostForm {
 }
 
 export default function Edit (props: IEditProps) {
+    const [partyId, setPartyId] = useState<string | null>(null);
     const [requestUsers, setRequestUsers] = useState<IUser[]>([]);
     const [editPostForm, setEditPostForm] = useState<IEditPostForm>({ title: "", details: "", max_participants: 0, img: { url: "", file: {} as File }, tags: "", status: "" });
     const router = useRouter();
@@ -48,6 +50,11 @@ export default function Edit (props: IEditProps) {
                 tags: post.tags.join(" "),
                 status: post.status,
             })
+            if (post.status === "Completed") {
+                const q = query(collection(db, "party"), where("post_id", "==", post.id))
+                getDocs(q)
+                 .then(snapshot => snapshot.docs.map(doc => setPartyId(doc.id)))
+            }
         }
     }, [post])
 
@@ -191,22 +198,22 @@ export default function Edit (props: IEditProps) {
                     <div className="w-full lg:w-1/2 relative mt-5">
                         <label className='absolute top-0 right-0 z-10 text-white text-3xl mr-2 flex justify-center items-center cursor-pointer'>
                             <BiImageAdd />
-                            <input onChange={handleChangeFile} type="file" className="hidden" />
+                            <input disabled={post.status === "Completed"} onChange={handleChangeFile} type="file" className="hidden" />
                         </label>
                         {post.img !== '' && <img className='object-cover w-full brightness-75' src={editPostForm.img.url} alt={editPostForm.title} />}
                     </div>
                     <div className="mt-5 w-full lg:w-1/2">
                         <div className="mt-3">
                             <label>Title</label>
-                            <input onChange={handleOnChange} placeholder={editPostForm.title} value={editPostForm.title} type="text" name="title" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+                            <input onChange={handleOnChange} placeholder={editPostForm.title} value={editPostForm.title} type="text" name="title" disabled={post.status === "Completed"} className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
                         </div>
                         <div className="mt-3">
                             <label>Details</label>
-                            <textarea onChange={handleOnChange}  placeholder={editPostForm.details} value={editPostForm.details} name="details" className="p-1 w-full min-h-fit border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200 scrollbar" />
+                            <textarea onChange={handleOnChange}  placeholder={editPostForm.details} value={editPostForm.details} name="details" disabled={post.status === "Completed"} className="p-1 w-full min-h-fit border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200 scrollbar" />
                         </div>
                         <div className="mt-3">
                             <label>Tags</label>
-                            <input placeholder='Add your tags' onChange={handleOnChange} value={editPostForm.tags} type="text" name="tags" className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+                            <input placeholder='Add your tags' onChange={handleOnChange} value={editPostForm.tags} type="text" name="tags" disabled={post.status === "Completed"} className="p-1 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
                             <div className="mt-2 flex w-full">
                                 {editPostForm.tags.split(' ').map(tag => tag !== '' && (
                                     <Tag key={tag} tag={tag} />
@@ -215,7 +222,7 @@ export default function Edit (props: IEditProps) {
                         </div>
                         <div className="mt-3">
                             <label>Max Participants</label>
-                            <input type="number" name="max_participants" onChange={handleOnChange} min="1" max="12" defaultValue={post.max_participants} className="w-10 ml-2 border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" placeholder="Max" />
+                            <input type="number" name="max_participants" onChange={handleOnChange} min="1" max="12" defaultValue={post.max_participants} disabled={post.status === "Completed"} className="w-10 ml-2 border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" placeholder="Max" />
                         </div>
                         <div className="flex flex-col mt-3">
                             <label>Status</label>
@@ -224,11 +231,12 @@ export default function Edit (props: IEditProps) {
                                     type="checkbox"
                                     className="sr-only peer"
                                     checked={editPostForm.status === "Open"}
+                                    disabled={post.status === "Completed"}
                                     readOnly
                                 />
                                 <div
                                     onClick={() => {
-                                        setEditPostForm({ ...editPostForm, status: editPostForm.status === "Open" ? "Closed" : "Open" });
+                                        post.status !== "Completed" && setEditPostForm({ ...editPostForm, status: editPostForm.status === "Open" ? "Closed" : "Open" });
                                     }}
                                     className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-teal-400  peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-400"
                                 ></div>
@@ -239,7 +247,7 @@ export default function Edit (props: IEditProps) {
                         </div>
                     </div>
                     <div className="w-full lg:w-1/2 mt-5 flex justify-end">
-                        <button onClick={editPost} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Save</button>
+                        <button disabled={post.status === "Completed"} onClick={editPost} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Save</button>
                     </div>
                 </div>
                 <div className="p-2 flex flex-col items-center flex-1">
@@ -260,13 +268,20 @@ export default function Edit (props: IEditProps) {
                                         onChange={() => handleCheckboxChange(user.id)} 
                                         className="appearance-none w-5 h-5 rounded-md border-2 text-white focus:outline-none checked:bg-teal-400 checked:border-teal-400 transition-all duration-100 cursor-pointer" 
                                         checked={post.participants.includes(user.id)}
-                                        disabled={!post.participants.includes(user.id) && post.participants.length >= post.max_participants}
+                                        disabled={(!post.participants.includes(user.id) && post.participants.length >= post.max_participants) || post.status === "Completed"}
                                     />
                                 </div>
                             </div>
                         ))}
                     </div>
-                    {post.participants.length === post.max_participants && (
+                    {post.status === "Completed" ? (
+                        <div className='mt-5 flex flex-col items-center'>
+                            <p className="text-center text-teal-400">The status of this post has been completed go to see your party below!</p>
+                            <Link href={`/contact/${partyId}`}>
+                                <button className='border-2 border-teal-400 rounded p-2 mt-2 text-teal-400 hover:bg-teal-400 hover:text-white transition-all duration-300'>Go to Party 👋</button>                            
+                            </Link>
+                        </div>
+                    ) : post.participants.length === post.max_participants && (
                         <div className='mt-5'>
                             <button onClick={createParty} className='border-2 border-teal-400 rounded p-2 text-teal-400 hover:bg-teal-400 hover:text-white transition-all duration-300'>Create Party 🎉</button>
                         </div>

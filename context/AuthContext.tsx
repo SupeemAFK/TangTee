@@ -36,7 +36,7 @@ export default function AuthContext ({ children }: IAuthContextProps) {
                     avatar: user?.avatar,
                     bio: user?.bio,
                     stars: user?.stars,
-                    status: user?.status,
+                    banner_hex: user?.banner_hex
                 });
                 setLoading(false);
             }
@@ -62,14 +62,17 @@ export default function AuthContext ({ children }: IAuthContextProps) {
                 const storageRef: StorageReference = ref(storage, user?.displayName + user?.uid);
                 const snapshot: UploadResult = await uploadBytes(storageRef, blob);
                 const imgUrl = await getDownloadURL(snapshot.ref);
-
-                setDoc(doc(db, "users", user.uid), {
-                    name: user?.displayName ? user.displayName : "",
-                    avatar: imgUrl ? imgUrl : "",
-                    bio: "Write something here",
-                    stars: 5,
-                    status: "Chilling",
-                });
+                const userSnap = await getDoc(doc(db, "users", user.uid))
+                
+                if (!userSnap.exists()) {
+                    setDoc(doc(db, "users", user.uid), {
+                        name: user?.displayName ? user.displayName : "",
+                        avatar: imgUrl ? imgUrl : "",
+                        bio: "Write something here",
+                        stars: 5,
+                        banner_hex: "#0d9488"
+                    });
+                }
                 router.push('/')
             })
             .catch((error) => {
