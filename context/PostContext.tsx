@@ -25,7 +25,8 @@ const postContext = React.createContext({} as IContext)
 export default function PostContext ({ children }: IPostContextProps) {
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [previousDoc, setPreviousDoc] = useState<QuerySnapshot<DocumentData>>();
-    const [posts, setPosts] = useState<IPost[] | []>([]);
+    const [posts, setPosts] = useState<IPost[]>([]);
+    const [participants, setParticipants] = useState<IParticipantsNumber[]>([]);
 
     function fetchMore() {
         if (previousDoc) {
@@ -59,6 +60,16 @@ export default function PostContext ({ children }: IPostContextProps) {
     }
 
     useEffect(() => {
+        if (posts.length > 0) {
+            const updatePosts = posts.map(post => {
+                const participantNumber = participants.find(participant => participant.post_id === post.id)
+                return {...post, participants: participantNumber?.participants} as IPost
+            })
+            setPosts(updatePosts)
+        }
+    }, [participants])
+
+    useEffect(() => {
         onSnapshot(collection(db, "posts"), snapshot => {
             const participants: IParticipantsNumber[] = snapshot.docs.map(doc => {
                 const data = doc.data()
@@ -66,16 +77,10 @@ export default function PostContext ({ children }: IPostContextProps) {
                     post_id: doc.id,
                     participants: data.participants
                 }
-            })
-            if (posts.length > 0) {
-                const updatePosts = posts.map(post => {
-                    const participantNumber = participants.find(participant => participant.post_id === post.id)
-                    return {...post, participants: participantNumber?.participants} as IPost
-                })
-                setPosts(updatePosts)
-            }
+            })          
+            setParticipants(participants)
         })
-    }, [posts])
+    }, [])
 
     useEffect(() => {
         getDocs(query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(8)))
@@ -103,7 +108,7 @@ export default function PostContext ({ children }: IPostContextProps) {
             })
     }, [])
 
-  return (
+    return (
     <postContext.Provider
         value={{
             posts,
