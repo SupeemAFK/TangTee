@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '../../hooks/useGetUser'
 import Iframe from 'react-iframe'
 import Link from 'next/link'
+import LinkPreview from '../../components/LinkPreview'
 
 export interface IContactProps {
 }
@@ -106,7 +107,7 @@ export default function Contact (props: IContactProps) {
     <div className="min-w-screen h-[calc(100vh-4rem)] mt-16">
       <button onClick={() => setOpenParticipants(true)} className="md:hidden block p-2 bg-teal-400 text-white fixed top-16 left-1 rounded-full z-20"><MdNavigateNext /></button> 
       <div className={`${openParticipants ? "left-0" : "left-[-100%]"} md:left-0 z-30 h-screen w-52 relative md:fixed left-0 bg-teal-500 text-white overflow-auto scrollbar p-2 transition-all duration-300`}>
-        <button onClick={() => setOpenParticipants(false)} className="lg:hidden block p-2 bg-teal-400 text-white absolute top-0 right-0 rounded-full z-20"><MdNavigateBefore/></button> 
+        <button onClick={() => setOpenParticipants(false)} className="md:hidden block p-2 bg-teal-400 text-white absolute top-0 right-0 rounded-full z-20"><MdNavigateBefore/></button> 
         {party?.participants?.map(user => (
           <div key={user.id} className="flex items-center p-2 border-[1px] border-[#e6e6e6] rounded mt-2">
             <div className="w-10 h-10 rounded-full overflow-hidden">
@@ -119,23 +120,21 @@ export default function Contact (props: IContactProps) {
       <div className="w-full md:w-[calc(100%-13rem)] h-[calc(100%-7.5rem)] px-5 py-3 fixed right-0 top-0 mt-16 overflow-auto scrollbar">
           {party?.messages?.map(message => (
             <div key={message.id} className="mt-4">
-              <div className='flex items-center'>
-                <div className="w-12 h-12 rounded-full overflow-hidden">
+              <div className='flex w-full'>
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden">
                   <img className="w-full object-cover" src={message.user.avatar} alt={message.user.name} />
                 </div>
-                <div className='flex flex-col items-start ml-2'>
+                <div className='ml-2 text-xs md:text-base flex flex-col items-start flex-1 max-w-xs md:max-w-md'>
                   <p className="text-xs ml-1">{message.user.name}</p>
                   {isValidURL(message.text) ? (
-                    <div>
-                      <Link href={message.text}>
-                        <p className="bg-teal-400 p-2 rounded-xl text-white cursor-pointer underline">{message.text}</p> 
-                      </Link>
-                      <div className="relative overflow-hidden pt-[56.25%] ">
-                        <Iframe url={convertToEmbedded(message.text)} className="absolute top-0 left-0 w-full h-full"></Iframe>
-                      </div>
-                    </div>
+                    <>
+                    <Link href={message.text}>
+                      <p className="bg-teal-400 p-2 cursor-pointer underline rounded-xl text-white break-all max-w-xs md:max-w-md">{message.text}</p>
+                    </Link>
+                    <LinkPreview url={message.text} />
+                    </>
                   ) : (
-                    <p className="bg-teal-400 p-2 rounded-xl text-white">{message.text}</p> 
+                    <p className="bg-teal-400 p-2 rounded-xl text-white break-words max-w-xs md:max-w-md">{message.text}</p> 
                   )}
                 </div>
               </div>
@@ -155,23 +154,3 @@ function isValidURL(string: string) {
   var res = string.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
   return (res !== null)
 };
-
-function convertToEmbedded(url: string) {
-  const domain = new URL(url)
-  if (domain.hostname === "www.youtube.com") {
-    return "//www.youtube.com/embed/" + getId(url)
-  }
-  if (domain.hostname === "www.facebook.com") {
-    return url
-  }
-  return url;
-}
-
-function getId(url: string) {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-
-  return (match && match[2].length === 11)
-    ? match[2]
-    : null;
-}

@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import useGetUser from '../../hooks/useGetUser';
 import { useAuth } from '../../context/AuthContext'
 import { motion } from 'framer-motion';
-import { BsFillStarFill } from 'react-icons/bs'
+import { BsCheckCircle, BsFillStarFill } from 'react-icons/bs'
 import { VscSymbolColor } from 'react-icons/vsc'
 import { useRouter } from 'next/router';
-import { ChromePicker, ColorResult } from "react-color";
+import { ChromePicker } from "react-color";
+import { toast } from 'react-toastify'
 import Modal from '../../components/Modal'
 import IPost from '../../interface/post'
 import IImage from '../../interface/img'
@@ -94,6 +95,16 @@ export default function Profile (props: IProfileProps) {
             banner_hex: editProfileForm.banner_hex,
             bio: editProfileForm.bio,
         })
+        .then(() => toast.success("Profile has been updated!", {
+            autoClose: 5000,
+            closeOnClick: true,
+            pauseOnHover: false,
+            style: { color: "#2dd4bf" },
+            progressStyle: { backgroundColor: '#2dd4bf'},
+            icon(props) {
+                return <BsCheckCircle />
+            },
+        }))
     }
 
     if (loading || !user) {
