@@ -2,18 +2,19 @@ import React, { useEffect, useState } from 'react';
 import useGetUser from '../../hooks/useGetUser';
 import { useAuth } from '../../context/AuthContext'
 import { motion } from 'framer-motion';
-import { BsCheckCircle, BsFillStarFill } from 'react-icons/bs'
+import { BsCheckCircle, BsStarFill, BsStar } from 'react-icons/bs'
 import { VscSymbolColor } from 'react-icons/vsc'
 import { useRouter } from 'next/router';
 import { ChromePicker } from "react-color";
 import { toast } from 'react-toastify'
 import Modal from '../../components/Modal'
 import IPost from '../../interface/post'
+import { star } from '../../interface/user'
 import IImage from '../../interface/img'
 import { collection, query, where, orderBy, onSnapshot, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../lib/firebase'
 import Post from '../../components/Post'
-import { BiImageAdd } from 'react-icons/bi';
+import { BiImageAdd, BiLeftArrow } from 'react-icons/bi';
 import { FirebaseStorage, getStorage, StorageReference, ref, UploadResult, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export interface IProfileProps {
@@ -27,7 +28,11 @@ interface IEditProfileForm {
 }
 
 export default function Profile (props: IProfileProps) {
+    const [canRateUser, setCanRateUser] = useState<boolean>(false);
     const [userPosts, setUserPosts] = useState<IPost[]>([]);
+    const [userStars, setUserStars] = useState<star[]>([]);
+    const [stars, setStars] = useState<star[]>([{ id: 1, open: true }, { id: 2, open: false }, { id: 3, open: false }, { id: 4, open: false }, { id: 5, open: false }]);
+    const [openProfileForm, setOpenProfileForm] = useState<boolean>(false);
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [openColorPicker, setOpenColorPicker] = useState<boolean>(false);
     const [editProfileForm, setEditProfileForm] = useState<IEditProfileForm>({ name: "", bio: "", avatar: { url: "", file: {} as File }, banner_hex: "#0d9488" });
@@ -43,7 +48,27 @@ export default function Profile (props: IProfileProps) {
     }, [loading])
 
     useEffect(() => {
-        user && setEditProfileForm({ name: user.name, bio: user.bio, avatar: { url: user.avatar, file: {} as File }, banner_hex: user.banner_hex })
+        if (user) {
+            setEditProfileForm({ name: user.name, bio: user.bio, avatar: { url: user.avatar, file: {} as File }, banner_hex: user.banner_hex })
+            
+            const starsNum = user.stars.map(star => star.stars)
+            const sum = starsNum.reduce((partialSum, a) => partialSum + a, 0);
+            const average = sum/user.stars.length
+
+            let starsLeft = 5
+            let id = 1
+            const stars: star[] = []
+            for (let i = 0; i < average; i++) {
+                stars.push({ id, open: true })
+                id++
+                starsLeft--
+            }
+            for (let i = 0; i < starsLeft; i++) {
+                stars.push({ id: id, open: false })
+                id++
+            }
+            setUserStars(stars)
+        }
     }, [user])
 
     useEffect(() => {
@@ -65,6 +90,8 @@ export default function Profile (props: IProfileProps) {
                     }
                 })
                 currentUser?.id === user.id ? setUserPosts(posts) : setUserPosts(posts.filter(post => post.status === "Open"))
+                const completedPosts = posts.filter(post => post.status === "Completed")
+                currentUser && completedPosts.find(post => post.participants.includes(currentUser.id)) && setCanRateUser(true)
             }))
         }
     }, [user])
@@ -107,6 +134,33 @@ export default function Profile (props: IProfileProps) {
         }))
     }
 
+    function rateUser() {
+        if (user && currentUser) {
+            const openStars = stars.filter(star => star.open)
+            if (user.stars.map(star => star.user_id).includes(currentUser.id)) {
+                const stars = user.stars.map(star => star.user_id === currentUser.id ? { ...star, stars: openStars.length } : star)
+                updateDoc(doc(db, "users", user.id), {
+                    stars
+                })
+            } else {
+                updateDoc(doc(db, "users", user.id), {
+                    stars: [...user.stars, { user_id: currentUser?.id, stars: openStars.length }]
+                })
+            }
+            setOpenModal(false)
+            toast.success("User has been rated!", {
+                autoClose: 5000,
+                closeOnClick: true,
+                pauseOnHover: false,
+                style: { color: "#2dd4bf" },
+                progressStyle: { backgroundColor: '#2dd4bf'},
+                icon(props) {
+                    return <BsCheckCircle />
+                },
+            })
+        }
+    }
+
     if (loading || !user) {
         return (
             <div className="mt-16 p-5 flex flex-col items-center text-teal-400">
@@ -118,7 +172,7 @@ export default function Profile (props: IProfileProps) {
                 </div>
             </div>
         )
-    }
+    }   
 
     return (
         <motion.div 
@@ -132,6 +186,50 @@ export default function Profile (props: IProfileProps) {
         >
             {openModal && (
                 <Modal setOpenModal={setOpenModal}>
+                    {openProfileForm ? (
+                        <div className="flex flex-col items-center">
+                            <div className='bg-slate-300 w-full flex justify-start items-center rounded-t-md p-1'>
+                                <button onClick={() => setOpenModal(false)} className='rounded-full bg-slate-500 opacity-50 w-5 h-5 flex justify-center items-center p-1 text-white'>x</button> 
+                            </div>
+                            <div className="relative w-full h-44 flex flex-col justify-end" style={{ backgroundColor: editProfileForm.banner_hex }}>
+                                <button onClick={() => setOpenColorPicker(!openColorPicker)} className="absolute top-2 right-3 text-white"><VscSymbolColor /></button>
+                                <div className="w-full flex justify-start relative mb-12">
+                                    <div className="ml-5 w-20 h-20 rounded-full overflow-hidden absolute top-0 border-4 border-white">
+                                        <label className='absolute top-1 right-1 z-10 text-white text-xl mr-2 flex justify-center items-center cursor-pointer'>
+                                            <BiImageAdd />
+                                            <input onChange={handleFileChange} type="file" className="hidden" />
+                                        </label>
+                                        <img className="w-full object-cover brightness-75" src={editProfileForm.avatar.url} alt="profile" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="w-full p-2 mt-7">
+                                <input onChange={handleOnChange} placeholder="name" name="name" value={editProfileForm.name} className="p-1 mt-2 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+                                <input onChange={handleOnChange} placeholder="bio" name="bio" value={editProfileForm.bio} className="p-1 mt-2 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
+                            </div>
+                            <div className="flex justify-end w-full mb-2 p-2">
+                                <button onClick={updateProfile} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Done</button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="p-5 flex flex-col">
+                            <h1>Rate user</h1>
+                            <div className='my-3'>
+                                {stars.map(star => (
+                                    <button 
+                                        className='text-5xl'
+                                        onClick={() => {
+                                            setStars(stars.map(findstar => findstar.id <= star.id ? { ...findstar, open: true } : { ...findstar, open: false }))
+                                        }}  
+                                        key={star.id}
+                                    >
+                                        {star.open ? <BsStarFill /> : <BsStar />  }
+                                    </button>
+                                ))}
+                            </div>
+                            <button className="border-2 border-teal-400 rounded text-teal-400 hover:bg-teal-400 hover:text-white transition-all duration-300" onClick={rateUser}>Rate</button>
+                        </div>
+                    )}
                     {openColorPicker && (
                         <motion.div
                             initial={{ scale: 0, opacity: 0 }}
@@ -144,30 +242,6 @@ export default function Profile (props: IProfileProps) {
                             /> 
                         </motion.div>
                     )}
-                    <div className="flex flex-col items-center">
-                        <div className='bg-slate-300 w-full flex justify-start items-center rounded-t-md p-1'>
-                            <button onClick={() => setOpenModal(false)} className='rounded-full bg-slate-500 opacity-50 w-5 h-5 flex justify-center items-center p-1 text-white'>x</button> 
-                        </div>
-                        <div className="relative w-full h-44 flex flex-col justify-end" style={{ backgroundColor: editProfileForm.banner_hex }}>
-                            <button onClick={() => setOpenColorPicker(!openColorPicker)} className="absolute top-2 right-3 text-white"><VscSymbolColor /></button>
-                            <div className="w-full flex justify-start relative mb-12">
-                                <div className="ml-5 w-20 h-20 rounded-full overflow-hidden absolute top-0 border-4 border-white">
-                                    <label className='absolute top-1 right-1 z-10 text-white text-xl mr-2 flex justify-center items-center cursor-pointer'>
-                                        <BiImageAdd />
-                                        <input onChange={handleFileChange} type="file" className="hidden" />
-                                    </label>
-                                    <img className="w-full object-cover brightness-75" src={editProfileForm.avatar.url} alt="profile" />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="w-full p-2 mt-7">
-                            <input onChange={handleOnChange} placeholder="name" name="name" value={editProfileForm.name} className="p-1 mt-2 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
-                            <input onChange={handleOnChange} placeholder="bio" name="bio" value={editProfileForm.bio} className="p-1 mt-2 w-full border-2 border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200" />
-                        </div>
-                        <div className="flex justify-end w-full mb-2 p-2">
-                            <button onClick={updateProfile} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Done</button>
-                        </div>
-                    </div>
                 </Modal>
             )}
             <div className="w-full lg:w-1/2 flex flex-col items-center">
@@ -179,14 +253,27 @@ export default function Profile (props: IProfileProps) {
                     </div>
                 </div>
                 <div className="border-[1px] border-[#e6e6e6] w-full">
-                        <div className={`${currentUser?.id === user.id ? "mt-5" : "mt-12"} mr-5 flex justify-end`}>
-                            {user.id === currentUser?.id && <button onClick={() => setOpenModal(true)} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Edit</button>}
+                        <div className={`${(canRateUser || user.id === currentUser?.id) ? "mt-5" : "mt-10"} mr-5 flex justify-end`}>
+                            {user.id === currentUser?.id ? (
+                                    <button onClick={() => {
+                                        setOpenModal(true)
+                                        setOpenProfileForm(true);
+                                    }} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Edit</button>
+                                ) : 
+                                canRateUser &&
+                                (
+                                    <button onClick={() => {
+                                        setOpenModal(true)
+                                        setOpenProfileForm(false) 
+                                    }} className="bg-teal-400 py-1 px-5 text-white rounded-xl">Rate User</button>
+                                )
+                            }
                         </div>
                     <div className="my-7 ml-5">
                         <p className="font-bold text-lg">{user.name}</p>
                         <p>{user.bio}</p>
                         <div className="flex mt-3">
-                            {Array.from(Array(user.stars).keys()).map(star => <BsFillStarFill key={star} />)}
+                            {userStars.map(userStar => userStar.open ? <BsStarFill key={userStar.id} /> : <BsStar key={userStar.id} />)}
                         </div>
                     </div>
                 </div>

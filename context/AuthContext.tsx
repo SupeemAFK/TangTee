@@ -69,7 +69,7 @@ export default function AuthContext ({ children }: IAuthContextProps) {
                         name: user?.displayName ? user.displayName : "",
                         avatar: imgUrl ? imgUrl : "",
                         bio: "Write something here",
-                        stars: 5,
+                        stars: [],
                         banner_hex: "#0d9488"
                     });
                 }
