@@ -15,11 +15,13 @@ interface IContext {
     signout: () => void
     currentUser: IUser | null
     loading: boolean
+    authLoading: boolean
 }
 
 const authContext = React.createContext({} as IContext);
 
 export default function AuthContext ({ children }: IAuthContextProps) {
+    const [authLoading, setAuthLoading] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [currentUser, setCurrentUser] = useState<IUser | null>(null);
     const router = useRouter();
@@ -48,6 +50,7 @@ export default function AuthContext ({ children }: IAuthContextProps) {
     }, [])
 
     function signinFacebook(): void {
+        setAuthLoading(true);
         signInWithPopup(auth, new FacebookAuthProvider())
             .then(async (result) => {
                 const user = result.user;
@@ -73,6 +76,7 @@ export default function AuthContext ({ children }: IAuthContextProps) {
                         banner_hex: "#0d9488"
                     });
                 }
+                setAuthLoading(false)
                 router.push('/')
             })
             .catch((error) => {
@@ -98,7 +102,8 @@ export default function AuthContext ({ children }: IAuthContextProps) {
                 signinFacebook, 
                 signout,
                 currentUser,
-                loading
+                loading,
+                authLoading
             } as IContext}
         >
             {children}
