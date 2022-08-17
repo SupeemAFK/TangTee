@@ -40,7 +40,7 @@ export default function Navbar (props: INavbarProps) {
 
     return (
         <div className="py-2 px-5 h-16 bg-teal-400 flex items-center text-white fixed top-0 w-full z-20">
-            <div className="flex items-center flex-1">
+            <div className="flex items-center justify-between md:justify-start flex-1">
                 {currentUser ? (
                     <>
                     <div className="flex items-center">
@@ -65,7 +65,7 @@ export default function Navbar (props: INavbarProps) {
                 )}
             </div>
             {currentUser && (
-                <div className="lg:flex-1">
+                <div className="md:flex-1 w-full mr-2 md:mr-0">
                     <form onSubmit={handleSearchSubmit}>
                         <input onChange={(e) => setSearchText(e.target.value)} value={searchText} placeholder='Search' type="text" className="p-1 w-full border-[1px] border-[#e6e6e6] rounded-sm focus:border-teal-400 outline-none transition-all duration-200 text-black" />
                     </form>
