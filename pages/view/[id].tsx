@@ -9,12 +9,15 @@ import { isAlreadyJoined } from '../../components/Post';
 import { query, collection, getDocs, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase'
 import Modal from '../../components/Modal'
+import IUser from '../../interface/user';
+import { getUser } from '../../hooks/useGetUser';
 
 export interface IPostDetailProps {
 }
 
 export default function PostDetail (props: IPostDetailProps) {
     const [openModal, setOpenModal] = useState<boolean>(false);
+    const [participantsUser, setParticipantsUser] = useState<IUser[]>([])
     const [isAlreadyJoined, setIsAlreadyJoined] = useState<isAlreadyJoined>({ alreadyJoined: false, join_id: "" });
     const router = useRouter();
     const { id } = router.query;
@@ -26,6 +29,16 @@ export default function PostDetail (props: IPostDetailProps) {
             router.push('/404')
         }
     }, [loading])
+
+    useEffect(() => {
+        const fetch = async () => {
+            if (post) {
+                const allUsers = await Promise.all(post.participants.map(async userId => await getUser(userId)))
+                setParticipantsUser(allUsers)
+            }
+        }
+        fetch()
+    }, [post])
 
     useEffect(() => {
         if (post && currentUser) {
@@ -123,6 +136,19 @@ export default function PostDetail (props: IPostDetailProps) {
                 </div>
                 <div className="w-full md:w-1/2 mt-5">
                     <p>{post.details}</p>
+                </div>
+                <div className='w-full md:w-1/2 mt-5 border-2 border-teal-400 p-2 rounded'>
+                    <h1>Participants</h1>
+                    <div>
+                        {participantsUser.length > 0 ? participantsUser.map(user => (
+                            <div className="mt-3 flex items-center" key={user.id}>
+                                <div className="w-8 h-8 rounded-full overflow-hidden">
+                                    <img className='w-full object-cover' src={user.avatar} alt={user.name} />
+                                </div>
+                                <p className="ml-1 text-sm flex-1">{user.name}</p>
+                            </div>
+                        )) : <h1 className='mt-3 text-sm'>Do not have any participants</h1>}
+                    </div>
                 </div>
             </motion.div>
         </>

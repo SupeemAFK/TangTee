@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import IPost from '../interface/post'
-import { collection, getDocs, query, limit, orderBy, startAfter,QuerySnapshot, DocumentData, onSnapshot } from 'firebase/firestore'
+import { collection, getDocs, query, limit, orderBy, startAfter,QuerySnapshot, DocumentData, onSnapshot, where } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { getUser } from '../hooks/useGetUser'
 
@@ -31,7 +31,7 @@ export default function PostContext ({ children }: IPostContextProps) {
     function fetchMore() {
         if (previousDoc) {
             const lastVisible = previousDoc.docs[previousDoc.docs.length-1];
-            const next = query(collection(db, "posts"), orderBy("createdAt", "desc"), startAfter(lastVisible), limit(8));
+            const next = query(collection(db, "posts"), orderBy("createdAt", "desc"), where("status", "==", "Open"), startAfter(lastVisible), limit(8));
             getDocs(next)
              .then(async docSnap => {
                 const dbPosts: IPost[] = await Promise.all(docSnap.docs.map(async doc => {
@@ -83,7 +83,7 @@ export default function PostContext ({ children }: IPostContextProps) {
     }, [])
 
     useEffect(() => {
-        getDocs(query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(8)))
+        getDocs(query(collection(db, "posts"), orderBy("createdAt", "desc"), where("status", "==", "Open"), limit(8)))
             .then(async docSnap => {
                 const dbPosts: IPost[] = await Promise.all(docSnap.docs.map(async doc => {
                     const id = doc.id;
