@@ -46,7 +46,7 @@ export default function AddPost (props: IAddPostProps) {
   }
 
   async function AddPost(): Promise<void> {
-    if (postForm.title !== '' && postForm.details !== '' && postForm.tags && (postForm.max_participants > 0 && postForm.max_participants !== NaN)) {
+    if (currentUser && postForm.title !== '' && postForm.details !== '' && postForm.tags && (postForm.max_participants > 0 && postForm.max_participants !== NaN)) {
       setLoading(true);
       let imgUrl: string = "";
       const storage: FirebaseStorage = getStorage();

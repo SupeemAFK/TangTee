@@ -27,7 +27,7 @@ export default function PostContext ({ children }: IPostContextProps) {
     const [previousDoc, setPreviousDoc] = useState<QuerySnapshot<DocumentData>>();
     const [posts, setPosts] = useState<IPost[]>([]);
     const [participants, setParticipants] = useState<IParticipantsNumber[]>([]);
-
+    
     function fetchMore() {
         if (previousDoc) {
             const lastVisible = previousDoc.docs[previousDoc.docs.length-1];

@@ -122,16 +122,19 @@ export default function Profile (props: IProfileProps) {
             banner_hex: editProfileForm.banner_hex,
             bio: editProfileForm.bio,
         })
-        .then(() => toast.success("Profile has been updated!", {
-            autoClose: 5000,
-            closeOnClick: true,
-            pauseOnHover: false,
-            style: { color: "#2dd4bf" },
-            progressStyle: { backgroundColor: '#2dd4bf'},
-            icon(props) {
-                return <BsCheckCircle />
-            },
-        }))
+        .then(() => {
+            setOpenModal(false);
+            toast.success("Profile has been updated!", {
+                autoClose: 5000,
+                closeOnClick: true,
+                pauseOnHover: false,
+                style: { color: "#2dd4bf" },
+                progressStyle: { backgroundColor: '#2dd4bf'},
+                icon(props) {
+                    return <BsCheckCircle />
+                },
+            })
+        })
     }
 
     function rateUser() {
