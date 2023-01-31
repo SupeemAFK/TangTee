@@ -10,7 +10,6 @@ import { FiSend } from 'react-icons/fi'
 import { MdNavigateNext, MdNavigateBefore } from 'react-icons/md'
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '../../hooks/useGetUser'
-import Iframe from 'react-iframe'
 import Link from 'next/link'
 import LinkPreview from '../../components/LinkPreview'
 
@@ -84,7 +83,7 @@ export default function Contact (props: IContactProps) {
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault()
 
-    if(id) {
+    if(id && message != "") {
       const messageObj = {
         id: uuidv4(),
         text: message,

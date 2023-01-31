@@ -156,7 +156,7 @@ export default function Post ({ post }: IPostProps) {
         <p className='text-center'>{post.title}</p>
         {post.tags.length > 0 && (
           <div className='w-full flex justify-center mt-1'>
-            {post.tags.map(tag => (
+            {post.tags.map(tag => tag !== '' && (
               <Tag key={tag} tag={tag} />
             ))}
           </div>
